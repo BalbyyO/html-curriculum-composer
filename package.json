@@ -1,6 +1,6 @@
 {
   "name": "html-curriculum-composer",
-  "version": "0.1.0-beta",
+  "version": "0.1.1-beta",
   "private": true,
   "description": "Offline-first multi-page interactive HTML training & curriculum composer with 3D hardware labs, SCORM export, and printable SOPs",
   "author": "Matheus Oliveira",

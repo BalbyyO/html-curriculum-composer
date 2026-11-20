@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self' file:; style-src 'self' file: 'unsafe-inline'; img-src 'self' file: data: blob:; font-src 'self' file: data:; connect-src 'self' file:; frame-src 'self' file: about:; object-src 'none'; base-uri 'none';">
   <title>HTML Curriculum Composer Offline Player</title>
   <link rel="stylesheet" href="./hardware3d/hardware3d.css">
@@ -61,6 +62,29 @@
         >
           Fit
         </button>
+
+        <div class="theme-toggle-group" role="group" aria-label="Color theme">
+          <button
+            id="btn-theme-day"
+            type="button"
+            class="toolbar-btn theme-btn"
+            data-theme-choice="light"
+            aria-pressed="true"
+            title="Switch to Day Mode"
+          >
+            <span aria-hidden="true">&#9728;</span> Day
+          </button>
+          <button
+            id="btn-theme-night"
+            type="button"
+            class="toolbar-btn theme-btn"
+            data-theme-choice="dark"
+            aria-pressed="false"
+            title="Switch to Night Mode"
+          >
+            <span aria-hidden="true">&#9790;</span> Night
+          </button>
+        </div>
 
         <div id="guided-controls" class="mode-controls">
           <progress id="guided-progress" class="guided-progress" value="0" max="1"></progress>

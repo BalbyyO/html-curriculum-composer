@@ -322,7 +322,7 @@ describe('Milestone 5 Unit Suite', () => {
       version: string;
     };
     expect(pkg.name).toBe('html-curriculum-composer');
-    expect(pkg.version).toBe('0.1.0-beta');
+    expect(pkg.version).toBe('0.1.1-beta');
 
     const builderYml = await fs.readFile(path.join(repoRoot, 'electron-builder.yml'), 'utf8');
     expect(builderYml).toContain('HTML Curriculum Composer');

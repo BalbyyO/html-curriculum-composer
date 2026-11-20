@@ -7,6 +7,7 @@ import type {
   Hardware3DPageConfig,
   RecordedLink
 } from '../../shared/types';
+import type { ThemeMode } from '../theme';
 
 type AuthoringMode = 'browse' | 'pick' | 'draw';
 
@@ -23,6 +24,7 @@ interface StageCanvasProps {
   activePage: CapturedPage | null;
   allPages: CapturedPage[];
   pageLinks: RecordedLink[];
+  theme: ThemeMode;
   onCreateLink: (params: {
     targetPageId: string;
     actionType: ActionType;
@@ -44,6 +46,7 @@ export function StageCanvas({
   activePage,
   allPages,
   pageLinks,
+  theme,
   onCreateLink,
   onUpdateLinkTarget,
   onDeleteLink
@@ -100,6 +103,10 @@ export function StageCanvas({
   useEffect(() => {
     postToStage({ type: 'hcc:set-links', links: pageLinks });
   }, [pageLinks, stageSrc]);
+
+  useEffect(() => {
+    postToStage({ type: 'hcc:set-theme', theme });
+  }, [theme, stageSrc]);
 
   useEffect(() => {
     postToStage({
@@ -181,14 +188,14 @@ export function StageCanvas({
   const selectedTargetIs3D = allPages.find((p) => p.id === targetPageId)?.type === 'hardware3d';
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/80 flex flex-col overflow-hidden h-full min-h-[540px]">
-      <div className="border-b border-slate-800 bg-slate-950 px-3 py-2 flex flex-wrap items-center justify-between gap-2">
+    <div className="hcc-block flex flex-col overflow-hidden h-full min-h-[540px]">
+      <div className="hcc-block-header px-3 py-2 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-xs">
-          <span className="font-semibold text-slate-200">
+          <span className="font-bold text-[var(--hcc-ink)]">
             {activePage ? `${activePage.id}: ${activePage.title}` : 'No Page Selected'}
           </span>
           {activePage?.viewport && (
-            <span className="rounded border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-[10px] font-mono text-slate-400">
+            <span className="hcc-badge px-1.5 py-0.5 text-[10px] font-mono">
               {activePage.viewport.width}&times;{activePage.viewport.height}
             </span>
           )}
@@ -199,10 +206,8 @@ export function StageCanvas({
             type="button"
             aria-pressed={scaleMode === 'fit'}
             onClick={() => setScaleMode((m) => (m === 'fit' ? 'actual' : 'fit'))}
-            className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold border cursor-pointer ${
-              scaleMode === 'fit'
-                ? 'border-emerald-500/60 bg-emerald-600/20 text-emerald-200'
-                : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
+            className={`hcc-btn px-2.5 py-1 text-[11px] ${
+              scaleMode === 'fit' ? 'hcc-btn-success-soft' : ''
             }`}
           >
             {scaleMode === 'fit' ? 'Fit to Screen' : '100% Actual Size'}
@@ -213,10 +218,8 @@ export function StageCanvas({
               key={mode}
               type="button"
               onClick={() => setAuthorMode(mode)}
-              className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold border cursor-pointer ${
-                authorMode === mode
-                  ? 'border-sky-400 bg-sky-600/25 text-sky-200'
-                  : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
+              className={`hcc-btn px-2.5 py-1 text-[11px] ${
+                authorMode === mode ? 'hcc-btn-primary' : ''
               }`}
             >
               {mode === 'browse'
@@ -230,12 +233,12 @@ export function StageCanvas({
       </div>
 
       {pending && (
-        <div className="border-b border-sky-700/50 bg-sky-950/40 px-3 py-2.5 flex flex-wrap items-end gap-2.5 text-xs">
+        <div className="border-b-2 border-[var(--hcc-primary)] bg-[var(--hcc-primary-soft)] px-3 py-2.5 flex flex-wrap items-end gap-2.5 text-xs">
           <div className="flex flex-col gap-0.5 min-w-[140px]">
-            <span className="text-[10px] font-semibold uppercase text-sky-300">
+            <span className="text-[10px] font-bold uppercase text-[var(--hcc-primary-text)]">
               {pending.kind === 'hotspot' ? 'Drawn Hotspot Box' : 'Picked Element'}
             </span>
-            <span className="font-mono text-[11px] text-slate-200 truncate max-w-[190px]">
+            <span className="font-mono text-[11px] text-[var(--hcc-ink)] truncate max-w-[190px]">
               {pending.kind === 'hotspot'
                 ? `${pending.boundingBox.width}x${pending.boundingBox.height} @ (${pending.boundingBox.x},${pending.boundingBox.y})`
                 : pending.selector}
@@ -243,14 +246,14 @@ export function StageCanvas({
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor={targetPageSelectId} className="text-[11px] text-slate-300">
+            <label htmlFor={targetPageSelectId} className="text-[11px] font-bold text-[var(--hcc-ink)]">
               Target Page
             </label>
             <select
               id={targetPageSelectId}
               value={targetPageId}
               onChange={(e) => setTargetPageId(e.target.value)}
-              className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100"
+              className="hcc-input px-2 py-1 text-xs"
             >
               {allPages.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -263,14 +266,14 @@ export function StageCanvas({
           {selectedTargetIs3D && (
             <>
               <div className="flex flex-col gap-1">
-                <label htmlFor={focus3dPortId} className="text-[11px] text-cyan-300">
+                <label htmlFor={focus3dPortId} className="text-[11px] font-bold text-[var(--hcc-secondary-text)]">
                   Focus 3D Port / Part
                 </label>
                 <select
                   id={focus3dPortId}
                   value={focus3dPort}
                   onChange={(e) => setFocus3dPort(e.target.value)}
-                  className="rounded border border-cyan-600/50 bg-slate-950 px-2 py-1 text-xs text-slate-100"
+                  className="hcc-input px-2 py-1 text-xs"
                 >
                   <option value="">Default 3D View</option>
                   {DELL_R630_COMPONENTS.map((c) => (
@@ -283,14 +286,14 @@ export function StageCanvas({
 
               <label
                 htmlFor={split3dId}
-                className="flex items-center gap-1.5 text-[11px] text-cyan-200 pb-1 cursor-pointer"
+                className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--hcc-ink)] pb-1 cursor-pointer"
               >
                 <input
                   id={split3dId}
                   type="checkbox"
                   checked={split3d}
                   onChange={(e) => setSplit3d(e.target.checked)}
-                  className="h-3.5 w-3.5 accent-cyan-400"
+                  className="h-3.5 w-3.5"
                 />
                 Split View
               </label>
@@ -298,14 +301,14 @@ export function StageCanvas({
           )}
 
           <div className="flex flex-col gap-1">
-            <label htmlFor={actionTypeSelectId} className="text-[11px] text-slate-300">
+            <label htmlFor={actionTypeSelectId} className="text-[11px] font-bold text-[var(--hcc-ink)]">
               Action
             </label>
             <select
               id={actionTypeSelectId}
               value={actionType}
               onChange={(e) => setActionType(e.target.value as ActionType)}
-              className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100"
+              className="hcc-input px-2 py-1 text-xs"
             >
               <option value="click">click</option>
               <option value="type">type</option>
@@ -314,7 +317,7 @@ export function StageCanvas({
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor={linkLabelId} className="text-[11px] text-slate-300">
+            <label htmlFor={linkLabelId} className="text-[11px] font-bold text-[var(--hcc-ink)]">
               Label
             </label>
             <input
@@ -322,20 +325,20 @@ export function StageCanvas({
               type="text"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100 w-36"
+              className="hcc-input px-2 py-1 text-xs w-36"
             />
           </div>
 
           <label
             htmlFor={addStepCheckboxId}
-            className="flex items-center gap-1.5 text-[11px] text-slate-200 pb-1 cursor-pointer"
+            className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--hcc-ink)] pb-1 cursor-pointer"
           >
             <input
               id={addStepCheckboxId}
               type="checkbox"
               checked={alsoAddStep}
               onChange={(e) => setAlsoAddStep(e.target.checked)}
-              className="h-3.5 w-3.5 accent-emerald-500"
+              className="h-3.5 w-3.5"
             />
             Add Step
           </label>
@@ -344,14 +347,14 @@ export function StageCanvas({
             <button
               type="button"
               onClick={handleWireHotspot}
-              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 cursor-pointer"
+              className="hcc-btn hcc-btn-success px-3 py-1.5 text-xs"
             >
               Wire Link
             </button>
             <button
               type="button"
               onClick={() => setPending(null)}
-              className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-xs text-slate-300 hover:bg-slate-700 cursor-pointer"
+              className="hcc-btn px-2.5 py-1.5 text-xs"
             >
               Cancel
             </button>
@@ -359,7 +362,7 @@ export function StageCanvas({
         </div>
       )}
 
-      <div className="flex-1 bg-slate-950 relative min-h-[360px]">
+      <div className="flex-1 bg-[var(--hcc-stage-bg)] relative min-h-[360px]">
         {stageSrc ? (
           <iframe
             ref={iframeRef}
@@ -368,6 +371,7 @@ export function StageCanvas({
             onLoad={() => {
               postToStage({ type: 'hcc:set-mode', mode: authorMode });
               postToStage({ type: 'hcc:set-links', links: pageLinks });
+              postToStage({ type: 'hcc:set-theme', theme });
               postToStage({
                 type: 'hcc:set-scale',
                 mode: scaleMode,
@@ -377,42 +381,42 @@ export function StageCanvas({
             className="w-full h-full border-0"
           />
         ) : (
-          <div className="h-full flex items-center justify-center text-xs text-slate-500">
+          <div className="h-full flex items-center justify-center text-xs text-[var(--hcc-ink-subtle)]">
             Select or capture a page to inspect and wire interactive links.
           </div>
         )}
       </div>
 
-      <div className="border-t border-slate-800 bg-slate-950/90 p-2.5 max-h-40 overflow-y-auto">
+      <div className="border-t-2 border-[var(--hcc-border)] bg-[var(--hcc-surface-alt)] p-2.5 max-h-40 overflow-y-auto">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[11px] font-semibold text-slate-300">
+          <span className="text-[11px] font-bold uppercase text-[var(--hcc-ink)]">
             Outgoing Branch Links on {activePage?.id ?? '-'} ({pageLinks.length})
           </span>
-          <span className="text-[10px] text-slate-500">
+          <span className="text-[10px] text-[var(--hcc-ink-subtle)]">
             Pick elements or draw hotspot boxes above to wire branching menus
           </span>
         </div>
 
         {pageLinks.length === 0 ? (
-          <p className="text-[11px] text-slate-500">No outgoing links on this page yet.</p>
+          <p className="text-[11px] text-[var(--hcc-ink-subtle)]">No outgoing links on this page yet.</p>
         ) : (
           <div className="flex flex-col gap-1.5">
             {pageLinks.map((link) => (
               <div
                 key={link.id}
-                className="flex flex-wrap items-center gap-2 rounded border border-slate-800 bg-slate-900/70 px-2 py-1 text-[11px]"
+                className="hcc-kpi-cell flex flex-wrap items-center gap-2 px-2 py-1 text-[11px]"
               >
-                <span className="font-mono text-amber-300 truncate max-w-[200px]">
+                <span className="font-mono font-bold text-[var(--hcc-secondary-text)] truncate max-w-[200px]">
                   {link.isCustomHotspot
                     ? `[Box ${link.boundingBox?.width ?? 0}x${link.boundingBox?.height ?? 0}]`
                     : link.selector}
                 </span>
-                <span className="text-slate-400">&rarr;</span>
+                <span className="text-[var(--hcc-ink-muted)]">&rarr;</span>
                 <select
                   aria-label={`Target page for ${link.id}`}
                   value={link.targetPageId}
                   onChange={(e) => onUpdateLinkTarget(link.id, e.target.value)}
-                  className="rounded border border-slate-700 bg-slate-950 px-1.5 py-0.5 text-[11px] text-slate-100"
+                  className="hcc-input px-1.5 py-0.5 text-[11px]"
                 >
                   {allPages.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -420,7 +424,7 @@ export function StageCanvas({
                     </option>
                   ))}
                 </select>
-                <span className="text-slate-500">
+                <span className="text-[var(--hcc-ink-muted)]">
                   {link.hardware3dTarget?.focusTarget
                     ? `[3D -> ${link.hardware3dTarget.focusTarget}] `
                     : ''}
@@ -429,7 +433,7 @@ export function StageCanvas({
                 <button
                   type="button"
                   onClick={() => onDeleteLink(link.id)}
-                  className="ml-auto rounded border border-red-500/40 bg-red-950/40 px-1.5 py-0.5 text-[10px] text-red-300 hover:bg-red-900/60 cursor-pointer"
+                  className="hcc-btn hcc-btn-danger-soft ml-auto px-1.5 py-0.5 text-[10px]"
                 >
                   Remove
                 </button>

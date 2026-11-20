@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { CaptureEngine } from '../../src/main/capture/capture-engine';
 import { ProjectStore } from '../../src/main/projects/project-store';
 import { exportSopPdf } from '../../src/main/export/sop-exporter';
+import { exportOfflineFolder } from '../../src/main/export/exporter';
 
 const tempDirs: string[] = [];
 
@@ -211,6 +212,128 @@ describe('Milestone 5 E2E Suite', () => {
         expect(blockedRequests).toEqual([]);
       } finally {
         await new Promise<void>((resolve) => server.close(() => resolve()));
+      }
+    },
+    60000
+  );
+
+  it(
+    'opens exported offline player over file:// in Day Mode default and toggles cleanly to Deep Petrol Night Mode',
+    async () => {
+      const projectsRoot = await makeTempDir('hcc-m5-theme-proj-');
+      const bundleOut = await makeTempDir('hcc-m5-theme-export-');
+      const store = new ProjectStore(projectsRoot);
+      const created = await store.createProject('Yacht Club Theme E2E', {
+        sourceUrl: 'https://vcenter.internal/ui'
+      });
+      const projectId = created.metadata.projectId;
+      const projectDir = store.getProjectDir(projectId);
+
+      await fs.writeFile(
+        path.join(projectDir, 'pages', 'page-001.html'),
+        '<!doctype html><html><body><main><h1>vCenter Cluster</h1><button id="net-btn">Networking</button></main></body></html>',
+        'utf8'
+      );
+
+      const loaded = await store.openProject(projectId);
+      const now = new Date().toISOString();
+      loaded.manifest.startPageId = 'page-001';
+      loaded.manifest.pages.push({
+        id: 'page-001',
+        type: 'html',
+        file: 'pages/page-001.html',
+        title: 'vCenter Cluster',
+        sourceUrl: 'https://vcenter.internal/ui',
+        capturedAt: now,
+        contentHash: 'theme-e2e-hash-1',
+        viewport: { width: 1280, height: 800 },
+        assetRefs: []
+      });
+      loaded.manifest.steps.push({
+        id: 'step-001',
+        order: 1,
+        pageId: 'page-001',
+        title: 'Inspect Cluster',
+        instruction: 'Click Networking to inspect virtual switches.',
+        actionType: 'click',
+        selector: '#net-btn',
+        validation: {
+          mode: 'click',
+          expectedSelector: '#net-btn'
+        }
+      });
+      await store.saveProject(projectId, loaded.manifest);
+      await exportOfflineFolder(projectDir, bundleOut);
+
+      const browser = await chromium.launch({ channel: 'msedge', headless: true });
+      const consoleErrors: string[] = [];
+      const blockedRequests: string[] = [];
+      try {
+        const context = await browser.newContext();
+        await context.route(/^https?:\/\//i, (route) => {
+          blockedRequests.push(route.request().url());
+          return route.abort();
+        });
+        const page = await context.newPage();
+        page.on('console', (msg) => {
+          if (msg.type() === 'error') consoleErrors.push(msg.text());
+        });
+        page.on('pageerror', (err) => consoleErrors.push(err.message));
+
+        await page.goto(pathToFileURL(path.join(bundleOut, 'index.html')).href, { waitUntil: 'load' });
+        await page.locator('#btn-theme-day').waitFor({ state: 'visible' });
+
+        // Day Mode default checks (#F2F0EF canvas, #FFFFFF toolbar block)
+        const dayState = await page.evaluate(() => ({
+          dataTheme: document.documentElement.dataset.theme,
+          metaScheme: document.querySelector('meta[name="color-scheme"]')?.getAttribute('content'),
+          dayPressed: document.getElementById('btn-theme-day')?.getAttribute('aria-pressed'),
+          nightPressed: document.getElementById('btn-theme-night')?.getAttribute('aria-pressed'),
+          bodyBg: getComputedStyle(document.body).backgroundColor,
+          toolbarBg: getComputedStyle(document.querySelector('.player-toolbar')!).backgroundColor
+        }));
+        expect(dayState.dataTheme).toBe('light');
+        expect(dayState.metaScheme).toBe('light');
+        expect(dayState.dayPressed).toBe('true');
+        expect(dayState.nightPressed).toBe('false');
+        expect(dayState.bodyBg).toBe('rgb(242, 240, 239)');
+        expect(dayState.toolbarBg).toBe('rgb(255, 255, 255)');
+
+        // Switch to Night Mode (#0F1D24 canvas, #162933 toolbar block)
+        await page.click('#btn-theme-night');
+        const nightState = await page.evaluate(() => ({
+          dataTheme: document.documentElement.dataset.theme,
+          metaScheme: document.querySelector('meta[name="color-scheme"]')?.getAttribute('content'),
+          dayPressed: document.getElementById('btn-theme-day')?.getAttribute('aria-pressed'),
+          nightPressed: document.getElementById('btn-theme-night')?.getAttribute('aria-pressed'),
+          bodyBg: getComputedStyle(document.body).backgroundColor,
+          toolbarBg: getComputedStyle(document.querySelector('.player-toolbar')!).backgroundColor
+        }));
+        expect(nightState.dataTheme).toBe('dark');
+        expect(nightState.metaScheme).toBe('dark');
+        expect(nightState.dayPressed).toBe('false');
+        expect(nightState.nightPressed).toBe('true');
+        expect(nightState.bodyBg).toBe('rgb(15, 29, 36)');
+        expect(nightState.toolbarBg).toBe('rgb(22, 41, 51)');
+
+        // Toggle back to Day Mode
+        await page.click('#btn-theme-day');
+        const revertedState = await page.evaluate(() => ({
+          dataTheme: document.documentElement.dataset.theme,
+          metaScheme: document.querySelector('meta[name="color-scheme"]')?.getAttribute('content'),
+          dayPressed: document.getElementById('btn-theme-day')?.getAttribute('aria-pressed'),
+          toolbarBg: getComputedStyle(document.querySelector('.player-toolbar')!).backgroundColor
+        }));
+        expect(revertedState.dataTheme).toBe('light');
+        expect(revertedState.metaScheme).toBe('light');
+        expect(revertedState.dayPressed).toBe('true');
+        expect(revertedState.toolbarBg).toBe('rgb(255, 255, 255)');
+
+        expect(consoleErrors).toEqual([]);
+        expect(blockedRequests).toEqual([]);
+        await context.close();
+      } finally {
+        await browser.close();
       }
     },
     60000

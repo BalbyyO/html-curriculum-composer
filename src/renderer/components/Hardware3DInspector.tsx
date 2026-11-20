@@ -161,13 +161,13 @@ export function Hardware3DInspector({
   }
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/80 flex flex-col overflow-hidden h-full min-h-[540px]">
-      <div className="border-b border-slate-800 bg-slate-950 px-3 py-2 flex flex-wrap items-center justify-between gap-2">
+    <div className="hcc-block flex flex-col overflow-hidden h-full min-h-[540px]">
+      <div className="hcc-block-header px-3 py-2 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-xs">
-          <span className="rounded bg-cyan-500/20 border border-cyan-500/40 px-1.5 py-0.5 text-[10px] font-bold text-cyan-300">
+          <span className="hcc-badge hcc-badge-secondary px-1.5 py-0.5 text-[10px]">
             3D R630
           </span>
-          <span className="font-semibold text-slate-200">{page.title}</span>
+          <span className="font-bold text-[var(--hcc-ink)]">{page.title}</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5">
@@ -176,10 +176,8 @@ export function Hardware3DInspector({
               key={p.id}
               type="button"
               onClick={() => onChangeConfig({ ...config, cameraPreset: p.id })}
-              className={`rounded-lg px-2 py-1 text-[11px] font-semibold border cursor-pointer ${
-                config.cameraPreset === p.id
-                  ? 'border-sky-400 bg-sky-600/25 text-sky-200'
-                  : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
+              className={`hcc-btn px-2 py-1 text-[11px] ${
+                config.cameraPreset === p.id ? 'hcc-btn-primary' : ''
               }`}
             >
               {p.label}
@@ -188,9 +186,9 @@ export function Hardware3DInspector({
         </div>
       </div>
 
-      <div className="border-b border-slate-800 bg-slate-950/70 px-3 py-2 flex flex-wrap items-center gap-3 text-xs">
+      <div className="border-b border-[var(--hcc-border)] bg-[var(--hcc-surface-alt)] px-3 py-2 flex flex-wrap items-center gap-3 text-xs">
         <div className="flex items-center gap-1.5">
-          <label htmlFor={focusSelectId} className="text-[11px] text-slate-300">
+          <label htmlFor={focusSelectId} className="text-[11px] font-bold text-[var(--hcc-ink-muted)]">
             Focus Target
           </label>
           <select
@@ -206,7 +204,7 @@ export function Hardware3DInspector({
                 coverOpen: comp?.location === 'internal' ? true : config.coverOpen
               });
             }}
-            className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100"
+            className="hcc-input px-2 py-1 text-xs"
           >
             <option value="">None (use preset)</option>
             {DELL_R630_COMPONENTS.map((c) => (
@@ -221,10 +219,8 @@ export function Hardware3DInspector({
           type="button"
           aria-pressed={Boolean(config.coverOpen)}
           onClick={() => onChangeConfig({ ...config, coverOpen: !config.coverOpen })}
-          className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold border cursor-pointer ${
-            config.coverOpen
-              ? 'border-sky-400 bg-sky-600/25 text-sky-200'
-              : 'border-slate-700 bg-slate-800 text-slate-300'
+          className={`hcc-btn px-2.5 py-1 text-[11px] ${
+            config.coverOpen ? 'hcc-btn-primary' : ''
           }`}
         >
           Top Cover Open
@@ -234,10 +230,8 @@ export function Hardware3DInspector({
           type="button"
           aria-pressed={Boolean(config.exploded)}
           onClick={() => onChangeConfig({ ...config, exploded: !config.exploded })}
-          className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold border cursor-pointer ${
-            config.exploded
-              ? 'border-sky-400 bg-sky-600/25 text-sky-200'
-              : 'border-slate-700 bg-slate-800 text-slate-300'
+          className={`hcc-btn px-2.5 py-1 text-[11px] ${
+            config.exploded ? 'hcc-btn-primary' : ''
           }`}
         >
           Explode View
@@ -247,17 +241,15 @@ export function Hardware3DInspector({
           type="button"
           aria-pressed={Boolean(config.splitView)}
           onClick={() => onChangeConfig({ ...config, splitView: !config.splitView })}
-          className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold border cursor-pointer ${
-            config.splitView
-              ? 'border-emerald-400 bg-emerald-600/25 text-emerald-200'
-              : 'border-slate-700 bg-slate-800 text-slate-300'
+          className={`hcc-btn px-2.5 py-1 text-[11px] ${
+            config.splitView ? 'hcc-btn-success' : ''
           }`}
         >
           Split View
         </button>
 
         <div className="flex items-center gap-1.5">
-          <label htmlFor={pairedWebId} className="text-[11px] text-slate-300">
+          <label htmlFor={pairedWebId} className="text-[11px] font-bold text-[var(--hcc-ink-muted)]">
             Paired Web Page
           </label>
           <select
@@ -266,7 +258,7 @@ export function Hardware3DInspector({
             onChange={(e) =>
               onChangeConfig({ ...config, pairedWebPageId: e.target.value || undefined })
             }
-            className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100"
+            className="hcc-input px-2 py-1 text-xs"
           >
             <option value="">None</option>
             {htmlPages.map((hp) => (
@@ -278,20 +270,18 @@ export function Hardware3DInspector({
         </div>
       </div>
 
-      <div ref={mountRef} className="flex-1 min-h-[340px] relative bg-slate-950" />
+      <div ref={mountRef} className="flex-1 min-h-[340px] relative bg-[#091318]" />
 
-      <div className="border-t border-slate-800 bg-slate-950/90 px-3 py-2.5 flex flex-col gap-2 text-[11px]">
+      <div className="border-t-2 border-[var(--hcc-border)] bg-[var(--hcc-surface-alt)] px-3 py-2.5 flex flex-col gap-2 text-[11px]">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="font-semibold text-slate-400 mr-1">Highlight Ports / Parts:</span>
+          <span className="font-bold text-[var(--hcc-ink-muted)] mr-1">Highlight Ports / Parts:</span>
           {DELL_R630_COMPONENTS.map((comp) => (
             <button
               key={comp.id}
               type="button"
               onClick={() => toggleHighlight(comp.id)}
-              className={`rounded px-2 py-0.5 border text-[10px] font-mono cursor-pointer ${
-                highlightedSet.has(comp.id)
-                  ? 'border-sky-400 bg-sky-500/25 text-sky-200'
-                  : 'border-slate-700 bg-slate-900 text-slate-400 hover:text-slate-200'
+              className={`hcc-btn px-2 py-0.5 text-[10px] font-mono ${
+                highlightedSet.has(comp.id) ? 'hcc-btn-primary' : ''
               }`}
             >
               {comp.id}
@@ -300,10 +290,10 @@ export function Hardware3DInspector({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <span className="font-semibold text-slate-400">NIC / iDRAC Cabling:</span>
+          <span className="font-bold text-[var(--hcc-ink-muted)]">NIC / iDRAC Cabling:</span>
           {CABLE_PORTS.map((portId) => (
-            <label key={portId} className="flex items-center gap-1.5 text-slate-300">
-              <span className="font-mono">{portId}</span>
+            <label key={portId} className="flex items-center gap-1.5 text-[var(--hcc-ink)]">
+              <span className="font-mono font-bold">{portId}</span>
               <select
                 aria-label={`Cable state for ${portId}`}
                 value={getPortCableMode(portId)}
@@ -313,7 +303,7 @@ export function Hardware3DInspector({
                     e.target.value as 'connected' | 'disconnected' | 'miswired'
                   )
                 }
-                className="rounded border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-[10px] text-slate-100"
+                className="hcc-input px-1.5 py-0.5 text-[10px]"
               >
                 <option value="connected">Healthy (Link Up)</option>
                 <option value="disconnected">Disconnected (Dark LED)</option>
@@ -324,7 +314,7 @@ export function Hardware3DInspector({
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="font-semibold text-amber-400 mr-1">Fault Injection Lab:</span>
+          <span className="font-bold text-[var(--hcc-secondary-text)] mr-1">Fault Injection Lab:</span>
           {DELL_R630_COMPONENT_FAULTS.map((item) => {
             const active = faults[item.componentId] === item.faultType;
             return (
@@ -333,10 +323,8 @@ export function Hardware3DInspector({
                 type="button"
                 aria-pressed={active}
                 onClick={() => toggleComponentFault(item.componentId, item.faultType)}
-                className={`rounded px-2 py-0.5 border text-[10px] font-semibold cursor-pointer ${
-                  active
-                    ? 'border-amber-400 bg-amber-500/25 text-amber-200'
-                    : 'border-slate-700 bg-slate-900 text-slate-400 hover:text-slate-200'
+                className={`hcc-btn px-2 py-0.5 text-[10px] ${
+                  active ? 'hcc-btn-secondary' : ''
                 }`}
               >
                 {item.label}

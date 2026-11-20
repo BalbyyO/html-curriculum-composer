@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ExportResult, PreviewServerInfo, ProjectRecord } from '../../shared/types';
+import type { ThemeMode } from '../theme';
 
 interface ExportPreviewViewProps {
   project: ProjectRecord | null;
   previewInfo: PreviewServerInfo;
+  theme: ThemeMode;
   busy: boolean;
   onExportFolder: () => Promise<ExportResult | null>;
   onExportZip: () => Promise<ExportResult | null>;
@@ -19,6 +21,7 @@ interface ExportPreviewViewProps {
 export function ExportPreviewView({
   project,
   previewInfo,
+  theme,
   busy,
   onExportFolder,
   onExportZip,
@@ -32,36 +35,55 @@ export function ExportPreviewView({
 }: ExportPreviewViewProps) {
   const [lastExport, setLastExport] = useState<ExportResult | null>(null);
   const [frameKey, setFrameKey] = useState(0);
+  const playerFrameRef = useRef<HTMLIFrameElement>(null);
+
+  const previewOrigin = useMemo(() => {
+    if (!previewInfo.url) return null;
+    try {
+      return new URL(previewInfo.url).origin;
+    } catch {
+      return null;
+    }
+  }, [previewInfo.url]);
+
+  function postThemeToPlayer() {
+    const win = playerFrameRef.current?.contentWindow;
+    if (!win || !previewOrigin) return;
+    win.postMessage({ type: 'hcc:set-theme', theme }, previewOrigin);
+  }
+
+  useEffect(() => {
+    postThemeToPlayer();
+  }, [theme, previewOrigin, frameKey]);
 
   if (!project) {
     return (
-      <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-10 text-center text-sm text-slate-400">
+      <div className="hcc-block p-10 text-center text-sm text-[var(--hcc-ink-muted)]">
         Open or record a project first to export or preview its 3-mode offline training bundle.
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <section className="rounded-xl border border-slate-800 bg-slate-900/80 p-5 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 className="text-base font-semibold text-slate-100">
+    <div className="flex flex-col gap-4">
+      <section className="hcc-block flex flex-col overflow-hidden">
+        <div className="hcc-block-header px-4 py-2.5">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-[var(--hcc-ink)]">
             Offline Multi-Page Bundle &amp; SOP Exporter
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-[11px] text-[var(--hcc-ink-muted)]">
             Compiles 100% air-gap safe dual-mode bundles (Web Server + direct{' '}
-            <code className="font-mono text-slate-300">file://</code> via{' '}
-            <code className="font-mono text-slate-300">bundle-data.js</code>), SCORM 1.2 / 2004 LMS packages,{' '}
-            <code className="font-mono text-slate-300">.hccproj</code> archives, and printable HTML/PDF SOPs.
+            <code className="font-mono">file://</code> via <code className="font-mono">bundle-data.js</code>), SCORM 1.2 / 2004 LMS packages,{' '}
+            <code className="font-mono">.hccproj</code> archives, and printable HTML/PDF SOPs.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="p-4 flex flex-wrap items-center gap-2">
           <button
             type="button"
             disabled={busy}
             onClick={() => void onExportFolder().then((res) => res && setLastExport(res))}
-            className="rounded-lg bg-sky-600 px-3 py-2 text-xs font-semibold text-white hover:bg-sky-500 disabled:opacity-50 cursor-pointer"
+            className="hcc-btn hcc-btn-primary px-3 py-2 text-xs"
           >
             Export Offline Folder
           </button>
@@ -69,7 +91,7 @@ export function ExportPreviewView({
             type="button"
             disabled={busy}
             onClick={() => void onExportZip().then((res) => res && setLastExport(res))}
-            className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-50 cursor-pointer"
+            className="hcc-btn hcc-btn-success px-3 py-2 text-xs"
           >
             Export Portable .zip
           </button>
@@ -77,7 +99,7 @@ export function ExportPreviewView({
             type="button"
             disabled={busy}
             onClick={() => void onExportScorm12().then((res) => res && setLastExport(res))}
-            className="rounded-lg border border-cyan-500/60 bg-cyan-950/60 px-3 py-2 text-xs font-semibold text-cyan-200 hover:bg-cyan-900/60 disabled:opacity-50 cursor-pointer"
+            className="hcc-btn hcc-btn-primary-soft px-3 py-2 text-xs"
           >
             SCORM 1.2 (.zip)
           </button>
@@ -85,7 +107,7 @@ export function ExportPreviewView({
             type="button"
             disabled={busy}
             onClick={() => void onExportScorm2004().then((res) => res && setLastExport(res))}
-            className="rounded-lg border border-indigo-500/60 bg-indigo-950/60 px-3 py-2 text-xs font-semibold text-indigo-200 hover:bg-indigo-900/60 disabled:opacity-50 cursor-pointer"
+            className="hcc-btn hcc-btn-primary-soft px-3 py-2 text-xs"
           >
             SCORM 2004 (.zip)
           </button>
@@ -93,7 +115,7 @@ export function ExportPreviewView({
             type="button"
             disabled={busy}
             onClick={() => void onExportProjectArchive().then((res) => res && setLastExport(res))}
-            className="rounded-lg border border-violet-500/60 bg-violet-950/60 px-3 py-2 text-xs font-semibold text-violet-200 hover:bg-violet-900/60 disabled:opacity-50 cursor-pointer"
+            className="hcc-btn hcc-btn-secondary-soft px-3 py-2 text-xs"
           >
             Export Project (.hccproj)
           </button>
@@ -101,7 +123,7 @@ export function ExportPreviewView({
             type="button"
             disabled={busy}
             onClick={() => void onExportSopHtml().then((res) => res && setLastExport(res))}
-            className="rounded-lg border border-amber-500/60 bg-amber-950/60 px-3 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-900/60 disabled:opacity-50 cursor-pointer"
+            className="hcc-btn hcc-btn-secondary px-3 py-2 text-xs"
           >
             SOP Job-Aid (HTML)
           </button>
@@ -109,7 +131,7 @@ export function ExportPreviewView({
             type="button"
             disabled={busy}
             onClick={() => void onExportSopPdf().then((res) => res && setLastExport(res))}
-            className="rounded-lg border border-rose-500/60 bg-rose-950/60 px-3 py-2 text-xs font-semibold text-rose-200 hover:bg-rose-900/60 disabled:opacity-50 cursor-pointer"
+            className="hcc-btn hcc-btn-danger-soft px-3 py-2 text-xs"
           >
             SOP Job-Aid (PDF)
           </button>
@@ -119,7 +141,7 @@ export function ExportPreviewView({
               onReloadPreview();
               setFrameKey((k) => k + 1);
             }}
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 cursor-pointer"
+            className="hcc-btn px-3 py-2 text-xs ml-auto"
           >
             Reload Player
           </button>
@@ -129,43 +151,47 @@ export function ExportPreviewView({
       {lastExport && (
         <div
           role="status"
-          className="rounded-xl border border-emerald-600/40 bg-emerald-950/35 px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs"
+          className="hcc-alert-success px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs"
         >
           <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-emerald-300">
+            <span className="font-bold">
               Exported {lastExport.format.toUpperCase()} ({lastExport.fileCount} files &middot;{' '}
               {(lastExport.totalBytes / 1024).toFixed(1)} KB)
             </span>
-            <span className="font-mono text-slate-300">{lastExport.destinationPath}</span>
+            <span className="font-mono">{lastExport.destinationPath}</span>
           </div>
           <button
             type="button"
             onClick={() => onRevealPath(lastExport.destinationPath)}
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 cursor-pointer"
+            className="hcc-btn px-3 py-1.5 text-xs"
           >
             Reveal in Explorer
           </button>
         </div>
       )}
 
-      <section className="rounded-xl border border-slate-800 bg-slate-900/80 overflow-hidden flex flex-col">
-        <div className="border-b border-slate-800 bg-slate-950 px-4 py-2.5 flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-200">
+      <section className="hcc-block overflow-hidden flex flex-col">
+        <div className="hcc-block-header px-4 py-2.5 flex items-center justify-between text-xs">
+          <span className="font-bold uppercase tracking-wide text-[var(--hcc-ink)]">
             3-Mode Offline Player Preview (Guided &middot; Explore &middot; Assessment)
           </span>
-          <span className="font-mono text-slate-400">{previewInfo.url ?? 'Starting preview...'}</span>
+          <span className="font-mono text-[var(--hcc-ink-muted)]">
+            {previewInfo.url ?? 'Starting preview...'}
+          </span>
         </div>
 
-        <div className="h-[600px] w-full bg-slate-950">
+        <div className="h-[600px] w-full bg-[var(--hcc-stage-bg)]">
           {previewInfo.url ? (
             <iframe
+              ref={playerFrameRef}
               key={`${previewInfo.url}-${frameKey}`}
               title="3-Mode Offline Player Preview"
               src={previewInfo.url}
+              onLoad={postThemeToPlayer}
               className="w-full h-full border-0"
             />
           ) : (
-            <div className="h-full flex items-center justify-center text-xs text-slate-500">
+            <div className="h-full flex items-center justify-center text-xs text-[var(--hcc-ink-subtle)]">
               Loading offline player preview...
             </div>
           )}

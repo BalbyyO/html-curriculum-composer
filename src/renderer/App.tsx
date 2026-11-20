@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import type {
   CaptureSessionSummary,
-  MockServerInfo,
   PreviewServerInfo,
   ProjectMetadata,
   ProjectRecord,
@@ -13,6 +12,12 @@ import { ComposerView } from './components/ComposerView';
 import { ExportPreviewView } from './components/ExportPreviewView';
 import { ProjectsCaptureView } from './components/ProjectsCaptureView';
 import { SanitizationView } from './components/SanitizationView';
+import {
+  applyTheme,
+  readStoredTheme,
+  subscribeThemeStorage,
+  type ThemeMode
+} from './theme';
 
 type WorkspaceTab = 'capture' | 'composer' | 'sanitize' | 'export';
 
@@ -30,11 +35,7 @@ const EMPTY_SUMMARY: CaptureSessionSummary = {
 
 export function App() {
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('capture');
-  const [mockInfo, setMockInfo] = useState<MockServerInfo>({
-    running: false,
-    url: null,
-    port: null
-  });
+  const [theme, setTheme] = useState<ThemeMode>(() => readStoredTheme());
   const [projects, setProjects] = useState<ProjectMetadata[]>([]);
   const [activeProject, setActiveProject] = useState<ProjectRecord | null>(null);
   const [summary, setSummary] = useState<CaptureSessionSummary>(EMPTY_SUMMARY);
@@ -45,6 +46,14 @@ export function App() {
   });
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    applyTheme(theme, true);
+  }, [theme]);
+
+  useEffect(() => {
+    return subscribeThemeStorage((next) => setTheme(next));
+  }, []);
 
   async function refreshProjectsList() {
     const api = window.hccApi;
@@ -65,7 +74,6 @@ export function App() {
     const api = window.hccApi;
     if (!api) return;
 
-    void api.getMockServerStatus().then(setMockInfo);
     void api.getCaptureStatus().then(setSummary);
     void refreshProjectsList();
 
@@ -73,21 +81,6 @@ export function App() {
       setSummary(next);
     });
   }, []);
-
-  async function handleToggleMock() {
-    setErrorMsg(null);
-    setBusy(true);
-    try {
-      const next = mockInfo.running
-        ? await window.hccApi.stopMockServer()
-        : await window.hccApi.startMockServer();
-      setMockInfo(next);
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : String(err));
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function handleStartCapture(params: {
     projectName: string;
@@ -349,14 +342,28 @@ export function App() {
     { id: 'export', label: 'Export & Preview' }
   ];
 
+  const statusIndicatorClass =
+    summary.state === 'recording'
+      ? 'bg-[var(--hcc-danger)]'
+      : summary.state === 'paused'
+        ? 'bg-[var(--hcc-secondary)]'
+        : summary.state === 'stopped'
+          ? 'bg-[var(--hcc-success)]'
+          : 'bg-[var(--hcc-border-strong)]';
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-5 max-w-[1520px] mx-auto flex flex-col gap-5">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-50">
-            HTML Curriculum Composer
-          </h1>
-          <p className="text-xs text-slate-400">
+    <div className="hcc-app-shell min-h-screen p-4 max-w-[1540px] mx-auto flex flex-col gap-4">
+      <header className="hcc-block border-l-[6px] border-l-[var(--hcc-primary)] px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-extrabold tracking-tight uppercase text-[var(--hcc-ink)]">
+              HTML Curriculum Composer
+            </h1>
+            <span className="hcc-badge hcc-badge-secondary px-1.5 py-0.5 text-[10px] font-mono uppercase">
+              v0.1.1-beta
+            </span>
+          </div>
+          <p className="text-[11px] font-medium text-[var(--hcc-ink-muted)]">
             Offline Multi-Page Training Composer &middot; 3D Hardware Labs &middot; SCORM &amp; Printable SOPs
           </p>
         </div>
@@ -364,7 +371,7 @@ export function App() {
         <div
           role="tablist"
           aria-label="Workspace Sections"
-          className="flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900 p-1"
+          className="hcc-block-inset flex items-center gap-1 p-1"
         >
           {tabs.map((tab) => {
             const selected = activeTab === tab.id;
@@ -375,11 +382,7 @@ export function App() {
                 role="tab"
                 aria-selected={selected}
                 onClick={() => setActiveTab(tab.id)}
-                className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition cursor-pointer ${
-                  selected
-                    ? 'bg-sky-600/20 text-sky-300 border-b-2 border-sky-400'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
+                className="hcc-tab px-3 py-1.5 text-xs uppercase tracking-wide"
               >
                 {tab.label}
               </button>
@@ -387,46 +390,72 @@ export function App() {
           })}
         </div>
 
-        <div className="flex items-center gap-2.5 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
           {activeProject && (
-            <span className="rounded-lg border border-sky-700/50 bg-sky-950/40 px-3 py-1.5 font-medium text-sky-200">
+            <div className="hcc-badge hcc-badge-primary px-2.5 py-1.5 font-medium max-w-[240px] truncate">
               Active: <strong>{activeProject.manifest.name}</strong>
-            </span>
+            </div>
           )}
-          <div className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3 py-1.5 font-semibold">
-            <span
-              className={`h-2.5 w-2.5 rounded-full ${
-                summary.state === 'recording'
-                  ? 'bg-red-500'
-                  : summary.state === 'paused'
-                    ? 'bg-amber-400'
-                    : summary.state === 'stopped'
-                      ? 'bg-emerald-400'
-                      : 'bg-slate-500'
+
+          <div
+            role="group"
+            aria-label="Theme Mode"
+            className="hcc-block-inset flex items-center p-0.5 gap-0.5"
+          >
+            <button
+              id="btn-app-theme-day"
+              type="button"
+              aria-pressed={theme === 'light'}
+              onClick={() => setTheme('light')}
+              className={`hcc-btn px-2.5 py-1 text-[11px] flex items-center gap-1.5 border ${
+                theme === 'light'
+                  ? 'hcc-btn-primary'
+                  : 'border-transparent bg-transparent text-[var(--hcc-ink-muted)]'
               }`}
-            />
-            <span className="uppercase tracking-wider text-slate-200">{summary.state}</span>
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+              </svg>
+              <span>Day</span>
+            </button>
+            <button
+              id="btn-app-theme-night"
+              type="button"
+              aria-pressed={theme === 'dark'}
+              onClick={() => setTheme('dark')}
+              className={`hcc-btn px-2.5 py-1 text-[11px] flex items-center gap-1.5 border ${
+                theme === 'dark'
+                  ? 'hcc-btn-primary'
+                  : 'border-transparent bg-transparent text-[var(--hcc-ink-muted)]'
+              }`}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+              <span>Night</span>
+            </button>
+          </div>
+
+          <div className="hcc-badge px-2.5 py-1.5 flex items-center gap-2 font-mono uppercase">
+            <span className={`h-2.5 w-2.5 inline-block ${statusIndicatorClass}`} />
+            <span>{summary.state}</span>
           </div>
         </div>
       </header>
 
       {errorMsg && (
-        <div
-          role="alert"
-          className="rounded-lg border border-red-500/50 bg-red-950/60 px-4 py-3 text-sm text-red-200"
-        >
+        <div role="alert" className="hcc-alert-danger px-4 py-3 text-sm font-medium">
           {errorMsg}
         </div>
       )}
 
       {activeTab === 'capture' && (
         <ProjectsCaptureView
-          mockInfo={mockInfo}
           projects={projects}
           activeProjectId={activeProject?.metadata.projectId ?? null}
           summary={summary}
           busy={busy}
-          onToggleMock={() => void handleToggleMock()}
           onStartCapture={(p) => void handleStartCapture(p)}
           onPauseResume={() => void handlePauseResume()}
           onManualCapture={() => void handleManualCapture()}
@@ -445,7 +474,7 @@ export function App() {
           project={activeProject}
           previewBaseUrl={previewInfo.url}
           captureSummary={summary}
-          mockUrl={mockInfo.url}
+          theme={theme}
           busy={busy}
           onSaveProject={handleSaveProject}
           onDuplicatePage={handleDuplicatePage}
@@ -473,6 +502,7 @@ export function App() {
         <ExportPreviewView
           project={activeProject}
           previewInfo={previewInfo}
+          theme={theme}
           busy={busy}
           onExportFolder={() =>
             window.hccApi.exportOfflineFolder({ projectId: activeProject!.metadata.projectId })

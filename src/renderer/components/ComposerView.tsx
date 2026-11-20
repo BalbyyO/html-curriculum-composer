@@ -13,6 +13,7 @@ import {
   type ViewportSize,
   type WalkthroughStep
 } from '../../shared/types';
+import type { ThemeMode } from '../theme';
 import { Hardware3DInspector } from './Hardware3DInspector';
 import { StageCanvas } from './StageCanvas';
 import { StepEditorPanel } from './StepEditorPanel';
@@ -22,7 +23,7 @@ interface ComposerViewProps {
   project: ProjectRecord | null;
   previewBaseUrl: string | null;
   captureSummary: CaptureSessionSummary;
-  mockUrl: string | null;
+  theme: ThemeMode;
   busy: boolean;
   onSaveProject: (manifest: TrainingManifest, name: string) => Promise<void>;
   onDuplicatePage: (pageId: string) => Promise<void>;
@@ -48,7 +49,7 @@ export function ComposerView({
   project,
   previewBaseUrl,
   captureSummary,
-  mockUrl,
+  theme,
   busy,
   onSaveProject,
   onDuplicatePage,
@@ -103,7 +104,7 @@ export function ComposerView({
 
   if (!draftManifest) {
     return (
-      <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-10 text-center text-sm text-slate-400">
+      <div className="hcc-block p-10 text-center text-sm text-[var(--hcc-ink-muted)]">
         Open an existing project or record a new session from <strong>Projects &amp; Capture</strong> first.
       </div>
     );
@@ -320,10 +321,9 @@ export function ComposerView({
 
   function openAppendDrawer() {
     const fallbackUrl =
-      mockUrl ||
       project?.metadata.sourceUrl ||
       draftManifest?.pages.find((p) => p.sourceUrl?.startsWith('http'))?.sourceUrl ||
-      'http://127.0.0.1:0/index.html';
+      'https://';
     const defaultVp = draftManifest?.pages[0]?.viewport ?? { width: 1920, height: 1080 };
     setCaptureDrawer({
       mode: 'append',
@@ -335,9 +335,8 @@ export function ComposerView({
   function openReRecordDrawer(page: CapturedPage) {
     const fallbackUrl =
       (page.sourceUrl?.startsWith('http') ? page.sourceUrl : null) ||
-      mockUrl ||
       project?.metadata.sourceUrl ||
-      'http://127.0.0.1:0/index.html';
+      'https://';
     setCaptureDrawer({
       mode: 'rerecord',
       replacePageId: page.id,
@@ -348,9 +347,9 @@ export function ComposerView({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div className="hcc-block px-4 py-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <label htmlFor={projectTitleInputId} className="text-xs font-medium text-slate-400">
+          <label htmlFor={projectTitleInputId} className="text-xs font-bold uppercase text-[var(--hcc-ink-muted)]">
             Project Title
           </label>
           <input
@@ -361,10 +360,10 @@ export function ComposerView({
               setDraftName(e.target.value);
               setDirty(true);
             }}
-            className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm font-semibold text-slate-100 w-72"
+            className="hcc-input px-3 py-1.5 text-sm font-semibold w-72"
           />
           {dirty && (
-            <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2.5 py-0.5 text-[11px] font-semibold text-amber-300">
+            <span className="hcc-badge hcc-badge-secondary px-2 py-0.5 text-[11px]">
               Unsaved changes
             </span>
           )}
@@ -375,7 +374,7 @@ export function ComposerView({
             type="button"
             disabled={busy || isCaptureRunning}
             onClick={openAppendDrawer}
-            className="rounded-lg border border-amber-500/50 bg-amber-600/20 px-3 py-1.5 text-xs font-semibold text-amber-200 hover:bg-amber-600/30 disabled:opacity-50 cursor-pointer"
+            className="hcc-btn hcc-btn-secondary-soft px-3 py-1.5 text-xs"
           >
             Append Pages
           </button>
@@ -385,14 +384,14 @@ export function ComposerView({
             onClick={() =>
               void onSaveProject({ ...draftManifest, name: draftName }, draftName)
             }
-            className="rounded-lg bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-50 cursor-pointer"
+            className="hcc-btn hcc-btn-success px-3.5 py-1.5 text-xs"
           >
             Save Project
           </button>
           <button
             type="button"
             onClick={onOpenPlayerPreview}
-            className="rounded-lg border border-sky-500/50 bg-sky-600/20 px-3.5 py-1.5 text-xs font-semibold text-sky-300 hover:bg-sky-600/30 cursor-pointer"
+            className="hcc-btn hcc-btn-primary px-3.5 py-1.5 text-xs"
           >
             Preview 3-Mode Player
           </button>
@@ -402,9 +401,9 @@ export function ComposerView({
       {isCaptureRunning && (
         <div
           role="status"
-          className="rounded-xl border border-red-500/40 bg-red-950/35 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs"
+          className="hcc-alert-danger px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs"
         >
-          <span className="font-semibold text-red-200">
+          <span className="font-bold">
             {captureSummary.mode === 'rerecord'
               ? `Re-Recording ${captureSummary.replacePageId} (preserves links & step validation)`
               : `Appending Pages to "${draftName}" (${captureSummary.pages.length} total pages)`}
@@ -413,14 +412,14 @@ export function ComposerView({
             <button
               type="button"
               onClick={onPauseResumeCapture}
-              className="rounded-lg border border-amber-500/50 bg-amber-950/60 px-3 py-1 font-semibold text-amber-200 hover:bg-amber-900/60 cursor-pointer"
+              className="hcc-btn hcc-btn-secondary-soft px-3 py-1 text-xs"
             >
               {captureSummary.state === 'paused' ? 'Resume' : 'Pause'}
             </button>
             <button
               type="button"
               onClick={onManualCapture}
-              className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 font-semibold text-slate-100 hover:bg-slate-700 cursor-pointer"
+              className="hcc-btn px-3 py-1 text-xs"
             >
               Capture Manual Page
             </button>
@@ -428,7 +427,7 @@ export function ComposerView({
               type="button"
               disabled={busy}
               onClick={onStopCapture}
-              className="rounded-lg bg-red-600 px-3 py-1 font-semibold text-white hover:bg-red-500 cursor-pointer"
+              className="hcc-btn hcc-btn-danger px-3 py-1 text-xs"
             >
               Stop &amp; Apply
             </button>
@@ -437,9 +436,9 @@ export function ComposerView({
       )}
 
       {captureDrawer && !isCaptureRunning && (
-        <div className="rounded-xl border border-sky-700/50 bg-sky-950/30 px-4 py-3 flex flex-wrap items-end gap-3 text-xs">
+        <div className="hcc-block border-l-[6px] border-l-[var(--hcc-primary)] px-4 py-3 flex flex-wrap items-end gap-3 text-xs">
           <div className="flex flex-col gap-1 flex-1 min-w-[260px]">
-            <label htmlFor={inlineUrlInputId} className="text-[11px] font-semibold text-sky-300">
+            <label htmlFor={inlineUrlInputId} className="text-[11px] font-bold uppercase text-[var(--hcc-primary-text)]">
               {captureDrawer.mode === 'rerecord'
                 ? `Re-Record ${captureDrawer.replacePageId} Target URL`
                 : 'Append Recording Start URL'}
@@ -454,12 +453,12 @@ export function ComposerView({
               autoCorrect="off"
               autoCapitalize="none"
               spellCheck={false}
-              className="rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs font-mono text-slate-100"
+              className="hcc-input px-2.5 py-1.5 text-xs font-mono"
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor={inlineResSelectId} className="text-[11px] font-semibold text-slate-300">
+            <label htmlFor={inlineResSelectId} className="text-[11px] font-bold uppercase text-[var(--hcc-ink-muted)]">
               Resolution
             </label>
             <select
@@ -471,7 +470,7 @@ export function ComposerView({
                   setCaptureDrawer({ ...captureDrawer, viewport: { width: w, height: h } });
                 }
               }}
-              className="rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100"
+              className="hcc-input px-2.5 py-1.5 text-xs"
             >
               {CAPTURE_RESOLUTION_PRESETS.map((p) => (
                 <option key={p.id} value={`${p.width}x${p.height}`}>
@@ -512,7 +511,7 @@ export function ComposerView({
                   });
                 }
               }}
-              className="rounded-lg bg-emerald-600 px-3.5 py-1.5 font-semibold text-white hover:bg-emerald-500 cursor-pointer"
+              className="hcc-btn hcc-btn-primary px-3.5 py-1.5 text-xs"
             >
               {captureDrawer.mode === 'rerecord'
                 ? `Launch Edge & Re-Record ${captureDrawer.replacePageId}`
@@ -521,7 +520,7 @@ export function ComposerView({
             <button
               type="button"
               onClick={() => setCaptureDrawer(null)}
-              className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-slate-300 hover:bg-slate-700 cursor-pointer"
+              className="hcc-btn px-2.5 py-1.5 text-xs"
             >
               Cancel
             </button>
@@ -571,24 +570,25 @@ export function ComposerView({
             activePage={activePage}
             allPages={draftManifest.pages}
             pageLinks={pageLinks}
+            theme={theme}
             onCreateLink={handleCreateLink}
-          onUpdateLinkTarget={(linkId, nextTargetId) =>
-            mutateManifest((prev) => ({
-              ...prev,
-              links: prev.links.map((l) =>
-                l.id === linkId ? { ...l, targetPageId: nextTargetId } : l
-              )
-            }))
-          }
-          onDeleteLink={(linkId) =>
-            mutateManifest((prev) => ({
-              ...prev,
-              links: prev.links.filter((l) => l.id !== linkId),
-              steps: prev.steps.map((s) =>
-                s.linkId === linkId ? { ...s, linkId: undefined } : s
-              )
-            }))
-          }
+            onUpdateLinkTarget={(linkId, nextTargetId) =>
+              mutateManifest((prev) => ({
+                ...prev,
+                links: prev.links.map((l) =>
+                  l.id === linkId ? { ...l, targetPageId: nextTargetId } : l
+                )
+              }))
+            }
+            onDeleteLink={(linkId) =>
+              mutateManifest((prev) => ({
+                ...prev,
+                links: prev.links.filter((l) => l.id !== linkId),
+                steps: prev.steps.map((s) =>
+                  s.linkId === linkId ? { ...s, linkId: undefined } : s
+                )
+              }))
+            }
           />
         )}
 

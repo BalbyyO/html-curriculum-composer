@@ -16,6 +16,9 @@
   const hw3dPaneTitle = document.getElementById('hw3d-pane-title');
   const btnToggleSplit = document.getElementById('btn-toggle-split');
   const btnReturnWeb = document.getElementById('btn-return-web');
+  const dayThemeBtn = document.getElementById('btn-theme-day');
+  const nightThemeBtn = document.getElementById('btn-theme-night');
+  const PLAYER_THEME_KEY = 'hcc-theme-player';
 
   const modeTabs = Array.from(document.querySelectorAll('[role="tab"][data-mode]'));
   const guidedControls = document.getElementById('guided-controls');
@@ -1529,7 +1532,80 @@
     }
   }
 
+  function readInitialPlayerTheme() {
+    try {
+      const searchParams = new URLSearchParams(window.location.search || '');
+      const paramTheme = searchParams.get('theme');
+      if (paramTheme === 'light' || paramTheme === 'dark') {
+        return paramTheme;
+      }
+    } catch {
+      // Ignore query parse failures
+    }
+    try {
+      const saved = window.localStorage?.getItem(PLAYER_THEME_KEY);
+      if (saved === 'light' || saved === 'dark') {
+        return saved;
+      }
+    } catch {
+      // Ignore storage access restrictions on file:// origins
+    }
+    return 'light';
+  }
+
+  function applyPlayerTheme(nextTheme, persist) {
+    const normalized = nextTheme === 'dark' ? 'dark' : 'light';
+    if (document.documentElement) {
+      document.documentElement.dataset.theme = normalized;
+    }
+    const meta = document.querySelector('meta[name="color-scheme"]');
+    if (meta) {
+      meta.setAttribute('content', normalized);
+    }
+    if (dayThemeBtn) {
+      dayThemeBtn.setAttribute('aria-pressed', String(normalized === 'light'));
+    }
+    if (nightThemeBtn) {
+      nightThemeBtn.setAttribute('aria-pressed', String(normalized === 'dark'));
+    }
+    if (persist) {
+      try {
+        window.localStorage?.setItem(PLAYER_THEME_KEY, normalized);
+      } catch {
+        // Non-fatal if storage is blocked
+      }
+    }
+  }
+
+  applyPlayerTheme(readInitialPlayerTheme(), false);
+
   async function init() {
+    applyPlayerTheme(readInitialPlayerTheme(), false);
+
+    if (dayThemeBtn) {
+      dayThemeBtn.addEventListener('click', () => applyPlayerTheme('light', true));
+    }
+    if (nightThemeBtn) {
+      nightThemeBtn.addEventListener('click', () => applyPlayerTheme('dark', true));
+    }
+
+    window.addEventListener('storage', (event) => {
+      if (event.key !== PLAYER_THEME_KEY) return;
+      if (event.newValue === 'light' || event.newValue === 'dark') {
+        applyPlayerTheme(event.newValue, false);
+      } else if (event.newValue === null) {
+        applyPlayerTheme('light', false);
+      }
+    });
+
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (!data || typeof data !== 'object') return;
+      if (data.type === 'hcc:set-theme' && (data.theme === 'light' || data.theme === 'dark')) {
+        applyPlayerTheme(data.theme, false);
+      }
+    });
+
     if (stageFrame) {
       stageFrame.addEventListener('load', wireStageIframe);
     }

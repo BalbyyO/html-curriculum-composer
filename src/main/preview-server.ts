@@ -36,18 +36,19 @@ const COMPOSER_STAGE_HTML = `<!DOCTYPE html>
   <title>Composer Authoring Stage</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #020617; font-family: system-ui, sans-serif; }
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #D7D8D6; font-family: system-ui, sans-serif; }
+    html[data-theme="dark"], html[data-theme="dark"] body { background: #091318; }
     .stage-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
     .stage-wrap.actual-size { overflow: auto; }
-    .composer-scaler { position: absolute; left: 0; top: 0; transform-origin: top left; scale: 1; background: #0b1120; }
-    iframe { width: 100%; height: 100%; border: 0; display: block; background: #0b1120; }
+    .composer-scaler { position: absolute; left: 0; top: 0; transform-origin: top left; scale: 1; background: #ffffff; border: 1px solid #BBBDBC; }
+    iframe { width: 100%; height: 100%; border: 0; display: block; background: #ffffff; }
     .overlay-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
-    .draw-layer { position: absolute; inset: 0; z-index: 20; cursor: crosshair; display: none; background: rgba(56, 189, 248, 0.04); }
+    .draw-layer { position: absolute; inset: 0; z-index: 20; cursor: crosshair; display: none; background: rgba(36, 95, 115, 0.05); }
     .draw-layer.active { display: block; }
-    .hover-box { position: absolute; border: 2px solid #38bdf8; background: rgba(56, 189, 248, 0.16); pointer-events: none; display: none; border-radius: 3px; }
-    .draw-box { position: absolute; border: 2px dashed #10b981; background: rgba(16, 185, 129, 0.2); pointer-events: none; display: none; border-radius: 3px; }
-    .link-box { position: absolute; border: 2px dashed #f59e0b; background: rgba(245, 158, 11, 0.12); border-radius: 3px; pointer-events: none; }
-    .link-tag { position: absolute; top: -18px; left: 0; background: #d97706; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
+    .hover-box { position: absolute; border: 2px solid #245F73; background: rgba(36, 95, 115, 0.16); pointer-events: none; display: none; border-radius: 2px; }
+    .draw-box { position: absolute; border: 2px dashed #1F6650; background: rgba(31, 102, 80, 0.2); pointer-events: none; display: none; border-radius: 2px; }
+    .link-box { position: absolute; border: 2px dashed #733E24; background: rgba(115, 62, 36, 0.14); border-radius: 2px; pointer-events: none; }
+    .link-tag { position: absolute; top: -18px; left: 0; background: #733E24; color: #F2F0EF; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 2px; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -353,6 +354,8 @@ const COMPOSER_STAGE_JS = `(() => {
         pageViewport = { width: data.viewport.width, height: data.viewport.height };
       }
       applyScale();
+    } else if (data.type === 'hcc:set-theme') {
+      document.documentElement.dataset.theme = data.theme === 'dark' ? 'dark' : 'light';
     }
   });
 

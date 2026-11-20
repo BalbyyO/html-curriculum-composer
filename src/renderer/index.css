@@ -1,11 +1,443 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: light;
+
+  /* Yacht Club Day Mode (#F2F0EF, #BBBDBC, #245F73, #733E24) + Deep Petrol Night Mode */
+  --hcc-canvas-light: #F2F0EF;
+  --hcc-canvas-dark: #0F1D24;
+  --hcc-surface-light: #FFFFFF;
+  --hcc-surface-dark: #162933;
+  --hcc-surface-alt-light: #E6E4E2;
+  --hcc-surface-alt-dark: #1C3440;
+  --hcc-surface-input-light: #F7F6F5;
+  --hcc-surface-input-dark: #0B151B;
+  --hcc-border-light: #BBBDBC;
+  --hcc-border-dark: #2B4A59;
+  --hcc-border-strong-light: #7A8284;
+  --hcc-border-strong-dark: #3D687D;
+  --hcc-ink-light: #13262E;
+  --hcc-ink-dark: #F2F0EF;
+  --hcc-ink-muted-light: #3E4F56;
+  --hcc-ink-muted-dark: #BBBDBC;
+  --hcc-ink-subtle-light: #526065;
+  --hcc-ink-subtle-dark: #91A4AD;
+  --hcc-primary-light: #245F73;
+  --hcc-primary-dark: #2F7B94;
+  --hcc-primary-hover-light: #1B4A5A;
+  --hcc-primary-hover-dark: #3B93B0;
+  --hcc-primary-ink: #F2F0EF;
+  --hcc-primary-soft-light: #DCE8EC;
+  --hcc-primary-soft-dark: #1B3A47;
+  --hcc-primary-text-light: #1C4D5E;
+  --hcc-primary-text-dark: #7CC4DC;
+  --hcc-secondary-light: #733E24;
+  --hcc-secondary-dark: #9A5534;
+  --hcc-secondary-hover-light: #5B301B;
+  --hcc-secondary-hover-dark: #B36741;
+  --hcc-secondary-ink: #F2F0EF;
+  --hcc-secondary-soft-light: #EFE3DC;
+  --hcc-secondary-soft-dark: #3A2419;
+  --hcc-secondary-text-light: #733E24;
+  --hcc-secondary-text-dark: #E6A987;
+  --hcc-danger-light: #8F2424;
+  --hcc-danger-dark: #B83838;
+  --hcc-danger-soft-light: #F6E2E2;
+  --hcc-danger-soft-dark: #3C181C;
+  --hcc-danger-text-light: #7A1C1C;
+  --hcc-danger-text-dark: #F8B4B4;
+  --hcc-success-light: #1F6650;
+  --hcc-success-dark: #288568;
+  --hcc-success-soft-light: #DFEFEA;
+  --hcc-success-soft-dark: #15352B;
+  --hcc-success-text-light: #164D3C;
+  --hcc-success-text-dark: #8EE0C5;
+  --hcc-stage-bg-light: #D7D8D6;
+  --hcc-stage-bg-dark: #091318;
+  --hcc-backdrop-light: rgba(19, 38, 46, 0.55);
+  --hcc-backdrop-dark: rgba(6, 14, 18, 0.8);
+  --hcc-scroll-track-light: #E6E4E2;
+  --hcc-scroll-track-dark: #0F1D24;
+  --hcc-scroll-thumb-light: #7A8284;
+  --hcc-scroll-thumb-dark: #3D687D;
+
+  --hcc-canvas: light-dark(var(--hcc-canvas-light), var(--hcc-canvas-dark));
+  --hcc-surface: light-dark(var(--hcc-surface-light), var(--hcc-surface-dark));
+  --hcc-surface-alt: light-dark(var(--hcc-surface-alt-light), var(--hcc-surface-alt-dark));
+  --hcc-surface-input: light-dark(var(--hcc-surface-input-light), var(--hcc-surface-input-dark));
+  --hcc-border: light-dark(var(--hcc-border-light), var(--hcc-border-dark));
+  --hcc-border-strong: light-dark(var(--hcc-border-strong-light), var(--hcc-border-strong-dark));
+  --hcc-ink: light-dark(var(--hcc-ink-light), var(--hcc-ink-dark));
+  --hcc-ink-muted: light-dark(var(--hcc-ink-muted-light), var(--hcc-ink-muted-dark));
+  --hcc-ink-subtle: light-dark(var(--hcc-ink-subtle-light), var(--hcc-ink-subtle-dark));
+  --hcc-primary: light-dark(var(--hcc-primary-light), var(--hcc-primary-dark));
+  --hcc-primary-hover: light-dark(var(--hcc-primary-hover-light), var(--hcc-primary-hover-dark));
+  --hcc-primary-soft: light-dark(var(--hcc-primary-soft-light), var(--hcc-primary-soft-dark));
+  --hcc-primary-text: light-dark(var(--hcc-primary-text-light), var(--hcc-primary-text-dark));
+  --hcc-secondary: light-dark(var(--hcc-secondary-light), var(--hcc-secondary-dark));
+  --hcc-secondary-hover: light-dark(var(--hcc-secondary-hover-light), var(--hcc-secondary-hover-dark));
+  --hcc-secondary-soft: light-dark(var(--hcc-secondary-soft-light), var(--hcc-secondary-soft-dark));
+  --hcc-secondary-text: light-dark(var(--hcc-secondary-text-light), var(--hcc-secondary-text-dark));
+  --hcc-danger: light-dark(var(--hcc-danger-light), var(--hcc-danger-dark));
+  --hcc-danger-soft: light-dark(var(--hcc-danger-soft-light), var(--hcc-danger-soft-dark));
+  --hcc-danger-text: light-dark(var(--hcc-danger-text-light), var(--hcc-danger-text-dark));
+  --hcc-success: light-dark(var(--hcc-success-light), var(--hcc-success-dark));
+  --hcc-success-soft: light-dark(var(--hcc-success-soft-light), var(--hcc-success-soft-dark));
+  --hcc-success-text: light-dark(var(--hcc-success-text-light), var(--hcc-success-text-dark));
+  --hcc-stage-bg: light-dark(var(--hcc-stage-bg-light), var(--hcc-stage-bg-dark));
+  --hcc-backdrop: light-dark(var(--hcc-backdrop-light), var(--hcc-backdrop-dark));
+  --hcc-scroll-track: light-dark(var(--hcc-scroll-track-light), var(--hcc-scroll-track-dark));
+  --hcc-scroll-thumb: light-dark(var(--hcc-scroll-thumb-light), var(--hcc-scroll-thumb-dark));
+
+  accent-color: var(--hcc-primary);
+  scrollbar-color: var(--hcc-scroll-thumb) var(--hcc-scroll-track);
+}
+
+:root:has(> head > meta[name="color-scheme"][content="dark"]),
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root:has(> head > meta[name="color-scheme"][content="light"]),
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+@supports not (color: light-dark(white, black)) {
+  :root[data-theme="light"] {
+    --hcc-canvas: var(--hcc-canvas-light);
+    --hcc-surface: var(--hcc-surface-light);
+    --hcc-surface-alt: var(--hcc-surface-alt-light);
+    --hcc-surface-input: var(--hcc-surface-input-light);
+    --hcc-border: var(--hcc-border-light);
+    --hcc-border-strong: var(--hcc-border-strong-light);
+    --hcc-ink: var(--hcc-ink-light);
+    --hcc-ink-muted: var(--hcc-ink-muted-light);
+    --hcc-ink-subtle: var(--hcc-ink-subtle-light);
+    --hcc-primary: var(--hcc-primary-light);
+    --hcc-primary-hover: var(--hcc-primary-hover-light);
+    --hcc-primary-soft: var(--hcc-primary-soft-light);
+    --hcc-primary-text: var(--hcc-primary-text-light);
+    --hcc-secondary: var(--hcc-secondary-light);
+    --hcc-secondary-hover: var(--hcc-secondary-hover-light);
+    --hcc-secondary-soft: var(--hcc-secondary-soft-light);
+    --hcc-secondary-text: var(--hcc-secondary-text-light);
+    --hcc-danger: var(--hcc-danger-light);
+    --hcc-danger-soft: var(--hcc-danger-soft-light);
+    --hcc-danger-text: var(--hcc-danger-text-light);
+    --hcc-success: var(--hcc-success-light);
+    --hcc-success-soft: var(--hcc-success-soft-light);
+    --hcc-success-text: var(--hcc-success-text-light);
+    --hcc-stage-bg: var(--hcc-stage-bg-light);
+    --hcc-backdrop: var(--hcc-backdrop-light);
+    --hcc-scroll-track: var(--hcc-scroll-track-light);
+    --hcc-scroll-thumb: var(--hcc-scroll-thumb-light);
+  }
+
+  :root[data-theme="dark"],
+  :root:has(> head > meta[name="color-scheme"][content="dark"]) {
+    --hcc-canvas: var(--hcc-canvas-dark);
+    --hcc-surface: var(--hcc-surface-dark);
+    --hcc-surface-alt: var(--hcc-surface-alt-dark);
+    --hcc-surface-input: var(--hcc-surface-input-dark);
+    --hcc-border: var(--hcc-border-dark);
+    --hcc-border-strong: var(--hcc-border-strong-dark);
+    --hcc-ink: var(--hcc-ink-dark);
+    --hcc-ink-muted: var(--hcc-ink-muted-dark);
+    --hcc-ink-subtle: var(--hcc-ink-subtle-dark);
+    --hcc-primary: var(--hcc-primary-dark);
+    --hcc-primary-hover: var(--hcc-primary-hover-dark);
+    --hcc-primary-soft: var(--hcc-primary-soft-dark);
+    --hcc-primary-text: var(--hcc-primary-text-dark);
+    --hcc-secondary: var(--hcc-secondary-dark);
+    --hcc-secondary-hover: var(--hcc-secondary-hover-dark);
+    --hcc-secondary-soft: var(--hcc-secondary-soft-dark);
+    --hcc-secondary-text: var(--hcc-secondary-text-dark);
+    --hcc-danger: var(--hcc-danger-dark);
+    --hcc-danger-soft: var(--hcc-danger-soft-dark);
+    --hcc-danger-text: var(--hcc-danger-text-dark);
+    --hcc-success: var(--hcc-success-dark);
+    --hcc-success-soft: var(--hcc-success-soft-dark);
+    --hcc-success-text: var(--hcc-success-text-dark);
+    --hcc-stage-bg: var(--hcc-stage-bg-dark);
+    --hcc-backdrop: var(--hcc-backdrop-dark);
+    --hcc-scroll-track: var(--hcc-scroll-track-dark);
+    --hcc-scroll-thumb: var(--hcc-scroll-thumb-dark);
+  }
+}
+
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--hcc-scroll-thumb);
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--hcc-scroll-track);
+  }
+}
+
+html,
+body {
+  background-color: var(--hcc-canvas);
+  color: var(--hcc-ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Architectural Workstation Grid primitives (sharp 2px geometry, crisp borders, solid headers) */
+.hcc-app-shell {
+  background-color: var(--hcc-canvas);
+  color: var(--hcc-ink);
+}
+
+.hcc-block {
+  background-color: var(--hcc-surface);
+  border: 2px solid var(--hcc-border);
+  border-radius: 2px;
+}
+
+.hcc-block-inset {
+  background-color: var(--hcc-surface-alt);
+  border: 1px solid var(--hcc-border);
+  border-radius: 2px;
+}
+
+.hcc-block-header {
+  background-color: var(--hcc-surface-alt);
+  border-bottom: 2px solid var(--hcc-border);
+}
+
+.hcc-kpi-cell {
+  background-color: var(--hcc-surface-input);
+  border: 1px solid var(--hcc-border);
+  border-radius: 2px;
+}
+
+.hcc-input {
+  background-color: var(--hcc-surface-input);
+  border: 1px solid var(--hcc-border-strong);
+  border-radius: 2px;
+  color: var(--hcc-ink);
+}
+
+.hcc-input::placeholder {
+  color: var(--hcc-ink-subtle);
+}
+
+.hcc-input:focus-visible,
+.hcc-btn:focus-visible,
+.hcc-tab:focus-visible {
+  outline: 2px solid var(--hcc-primary);
+  outline-offset: 2px;
+}
+
+.hcc-btn {
+  border-radius: 2px;
+  border: 1px solid var(--hcc-border-strong);
+  background-color: var(--hcc-surface-alt);
+  color: var(--hcc-ink);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.hcc-btn:hover:not(:disabled) {
+  background-color: var(--hcc-border);
+}
+
+.hcc-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hcc-btn-primary {
+  background-color: var(--hcc-primary);
+  border-color: var(--hcc-primary);
+  color: var(--hcc-primary-ink);
+}
+
+.hcc-btn-primary:hover:not(:disabled) {
+  background-color: var(--hcc-primary-hover);
+  border-color: var(--hcc-primary-hover);
+}
+
+.hcc-btn-primary-soft {
+  background-color: var(--hcc-primary-soft);
+  border-color: var(--hcc-primary);
+  color: var(--hcc-primary-text);
+}
+
+.hcc-btn-secondary {
+  background-color: var(--hcc-secondary);
+  border-color: var(--hcc-secondary);
+  color: var(--hcc-secondary-ink);
+}
+
+.hcc-btn-secondary:hover:not(:disabled) {
+  background-color: var(--hcc-secondary-hover);
+  border-color: var(--hcc-secondary-hover);
+}
+
+.hcc-btn-secondary-soft {
+  background-color: var(--hcc-secondary-soft);
+  border-color: var(--hcc-secondary);
+  color: var(--hcc-secondary-text);
+}
+
+.hcc-btn-success {
+  background-color: var(--hcc-success);
+  border-color: var(--hcc-success);
+  color: #F2F0EF;
+}
+
+.hcc-btn-success-soft {
+  background-color: var(--hcc-success-soft);
+  border-color: var(--hcc-success);
+  color: var(--hcc-success-text);
+}
+
+.hcc-btn-danger {
+  background-color: var(--hcc-danger);
+  border-color: var(--hcc-danger);
+  color: #F2F0EF;
+}
+
+.hcc-btn-danger-soft {
+  background-color: var(--hcc-danger-soft);
+  border-color: var(--hcc-danger);
+  color: var(--hcc-danger-text);
+}
+
+.hcc-tab {
+  border-radius: 2px;
+  border: 1px solid transparent;
+  color: var(--hcc-ink-muted);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hcc-tab:hover:not([aria-selected="true"]) {
+  color: var(--hcc-ink);
+  background-color: var(--hcc-surface);
+}
+
+.hcc-tab[aria-selected="true"] {
+  background-color: var(--hcc-primary);
+  border-color: var(--hcc-primary);
+  color: var(--hcc-primary-ink);
+}
+
+.hcc-badge {
+  border-radius: 2px;
+  border: 1px solid var(--hcc-border-strong);
+  background-color: var(--hcc-surface-alt);
+  color: var(--hcc-ink);
+  font-weight: 700;
+}
+
+.hcc-badge-primary {
+  border-color: var(--hcc-primary);
+  background-color: var(--hcc-primary-soft);
+  color: var(--hcc-primary-text);
+}
+
+.hcc-badge-secondary {
+  border-color: var(--hcc-secondary);
+  background-color: var(--hcc-secondary-soft);
+  color: var(--hcc-secondary-text);
+}
+
+.hcc-badge-success {
+  border-color: var(--hcc-success);
+  background-color: var(--hcc-success-soft);
+  color: var(--hcc-success-text);
+}
+
+.hcc-badge-danger {
+  border-color: var(--hcc-danger);
+  background-color: var(--hcc-danger-soft);
+  color: var(--hcc-danger-text);
+}
+
+.hcc-alert-danger {
+  border-radius: 2px;
+  border: 2px solid var(--hcc-danger);
+  background-color: var(--hcc-danger-soft);
+  color: var(--hcc-danger-text);
+}
+
+.hcc-alert-success {
+  border-radius: 2px;
+  border: 2px solid var(--hcc-success);
+  background-color: var(--hcc-success-soft);
+  color: var(--hcc-success-text);
+}
+
+.hcc-card-item {
+  border-radius: 2px;
+  border: 1px solid var(--hcc-border);
+  background-color: var(--hcc-surface-input);
+}
+
+.hcc-card-item[data-selected="true"] {
+  border: 2px solid var(--hcc-primary);
+  background-color: var(--hcc-primary-soft);
+}
+
+.hcc-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.75rem;
+}
+
+.hcc-table thead {
+  background-color: var(--hcc-surface-alt);
+  border-bottom: 2px solid var(--hcc-border);
+  color: var(--hcc-ink-muted);
+}
+
+.hcc-table th,
+.hcc-table td {
+  border-bottom: 1px solid var(--hcc-border);
+  border-right: 1px solid var(--hcc-border);
+  padding: 0.6rem 0.75rem;
+}
+
+.hcc-table th:last-child,
+.hcc-table td:last-child {
+  border-right: 0;
+}
+
+.hcc-table tr[data-selected="true"] {
+  background-color: var(--hcc-primary-soft);
+}
+
+@media (forced-colors: active) {
+  .hcc-block,
+  .hcc-block-inset,
+  .hcc-input,
+  .hcc-btn,
+  .hcc-card-item,
+  .hcc-badge,
+  dialog {
+    border-color: ButtonBorder;
+  }
+
+  .hcc-tab[aria-selected="true"],
+  .hcc-card-item[data-selected="true"] {
+    outline: 2px solid Highlight;
+  }
+}
+
 dialog:modal {
   overscroll-behavior: contain;
 }
 
 dialog::backdrop {
-  background-color: rgba(2, 6, 23, 0.78);
+  background-color: var(--hcc-backdrop);
   overflow: hidden;
   overscroll-behavior: contain;
 }

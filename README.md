@@ -1,6 +1,6 @@
 # HTML Curriculum Composer
 
-![Version](https://img.shields.io/badge/version-0.1.0--beta-blue)
+![Version](https://img.shields.io/badge/version-0.1.1--beta-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-Windows%20x64%20(.msi)-lightgrey)
 
@@ -17,7 +17,8 @@
 - **Bulk Sanitization Engine:** Apply reusable literal and regex find-and-replace rules (with presets for IPv4 addresses, FQDNs, MAC addresses, and emails) across all pages and metadata with match previews.
 - **Visual Training Composer:** Reorder pages/steps, wire clickable DOM elements or custom hotspots to create branching multi-page workflows, configure input validation, and inspect live stage previews.
 - **3D Hardware Labs (Bundled Three.js):** Embed interactive **Dell PowerEdge R630** 1U server modules anywhere in a curriculum, link web hotspots (`vmnic0`–`vmnic3`, `iDRAC8`, PSUs) directly to 3D views, toggle exploded internals/cables, and inject hardware fault scenarios (`PSU Loss`, `Link Down`, `Thermal Overheat`).
-- **3-Mode Offline Player (Dual `http://` & `file://` Playback):** Export portable folders or `.zip` packages supporting **Guided**, **Explore**, and **Assessment** modes that run both on static web servers (`manifest.json` + `/pages/*.html`) and via direct double-click over `file://` (`bundle-data.js` + `srcdoc` fallback) with zero external network calls.
+- **Target Bookmarks & Session Telemetry:** Store quick-load portal URLs alongside live page/link/asset session telemetry and an architectural Day/Night workspace theme (`#F2F0EF`, `#BBBDBC`, `#245F73`, `#733E24` + Deep Petrol Night).
+- **3-Mode Offline Player (Dual `http://` & `file://` Playback):** Export portable folders or `.zip` packages supporting **Guided**, **Explore**, and **Assessment** modes with built-in Day/Night switching that run both on static web servers (`manifest.json` + `/pages/*.html`) and via direct double-click over `file://` (`bundle-data.js` + `srcdoc` fallback) with zero external network calls.
 - **SCORM 1.2 & SCORM 2004 Export:** Generate LMS-ready ZIP packages with `imsmanifest.xml` and local SCORM API bridges (`window.HCCScormBridge`) reporting scores, completion, success status, and session duration.
 - **Portable Project Archives (`.hccproj`) & Printable SOPs:** Package full editable projects as `.hccproj` archives with schema and path-traversal validation, or export air-gapped printable `@media print` HTML and native PDF job-aids.
 
@@ -43,7 +44,7 @@
 3. **Enterprise Windows Deployment:** Signed/standard WiX MSI packaging with a static `upgradeCode` for clean enterprise upgrades and silent installation:
 
 ```powershell
-msiexec /i "HTML Curriculum Composer 0.1.0-beta.msi" /qn
+msiexec /i "HTML Curriculum Composer 0.1.1-beta.msi" /qn
 ```
 
 ---
