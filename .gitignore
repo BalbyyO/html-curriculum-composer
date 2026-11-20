@@ -1,0 +1,9 @@
+node_modules/
+dist/
+release/
+coverage/
+.vitest/
+tmp/
+.sanitization-backups/
+*.log
+*.hccproj

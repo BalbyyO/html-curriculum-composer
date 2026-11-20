@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HyperCore Admin - Networking Settings</title>
+  <link rel="icon" type="image/svg+xml" href="/images/appliance-logo.svg">
+  <link rel="stylesheet" href="/styles/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="/images/appliance-logo.svg" alt="HyperCore logo" width="36" height="36">
+        <div>
+          <p class="brand-title">HyperCore Manager</p>
+          <p class="brand-sub">v8.2 Appliance</p>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Primary">
+        <a id="nav-dashboard" class="nav-link" href="/index.html">Dashboard</a>
+        <a id="nav-networking" class="nav-link" href="/networking.html" aria-current="page">Networking Settings</a>
+        <a id="nav-storage" class="nav-link" href="/storage.html">Storage Settings</a>
+      </nav>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div>
+          <h1 class="page-title" onmouseover="void(0)">Networking Settings</h1>
+          <p class="page-subtitle">Configure management VMkernel adapter and VLAN tagging &middot; Contact: ops-admin@corp.local</p>
+        </div>
+        <status-badge status="healthy">vmnic0 Up &middot; 10GbE</status-badge>
+      </header>
+
+      <form id="network-form" class="settings-form" method="POST" action="/api/networking" aria-labelledby="network-form-legend">
+        <fieldset>
+          <legend id="network-form-legend">Management Interface (vmk0)</legend>
+
+          <div class="form-field">
+            <label for="mgmt-ip">Management IPv4 Address <span aria-hidden="true">*</span></label>
+            <input id="mgmt-ip" name="mgmtIp" type="text" value="10.24.108.42" autocorrect="off" autocapitalize="none" spellcheck="false" aria-describedby="mgmt-ip-hint" required>
+            <span id="mgmt-ip-hint" class="form-hint">Static IPv4 address assigned to vmk0.</span>
+          </div>
+
+          <div class="form-field">
+            <label for="vlan-id">Management VLAN ID <span aria-hidden="true">*</span></label>
+            <input id="vlan-id" name="vlanId" type="text" inputmode="numeric" value="100" aria-describedby="vlan-hint" required>
+            <span id="vlan-hint" class="form-hint">Enter a numeric IEEE 802.1Q VLAN ID (1–4094).</span>
+          </div>
+
+          <div class="form-field">
+            <label for="nic-speed">Physical Uplink Speed</label>
+            <select id="nic-speed" name="nicSpeed">
+              <option value="10000-full" selected>10 Gbps Full Duplex</option>
+              <option value="1000-full">1 Gbps Full Duplex</option>
+              <option value="auto">Auto Negotiate</option>
+            </select>
+          </div>
+
+          <div class="checkbox-row">
+            <input type="checkbox" id="dhcp-enabled" name="dhcpEnabled">
+            <label for="dhcp-enabled">Allow fallback DHCP lease on reboot</label>
+          </div>
+
+          <div class="actions-row">
+            <button type="submit" id="apply-network-btn" class="btn btn-primary">Apply Changes</button>
+            <button type="button" id="open-vlan-modal-btn" class="btn">Inspect VLAN Trunk Details</button>
+          </div>
+        </fieldset>
+
+        <div id="save-banner" class="status-banner" role="status" aria-live="polite"></div>
+
+        <section id="vlan-detail-panel" class="card" hidden>
+          <p class="card-label">Async SPA Trunk Telemetry</p>
+          <p id="vlan-detail-text" class="mono"></p>
+        </section>
+      </form>
+    </main>
+  </div>
+
+  <script src="/js/admin-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self' file:; style-src 'self' file: 'unsafe-inline'; img-src 'self' file: data: blob:; font-src 'self' file: data:; connect-src 'self' file:; frame-src 'self' file: about:; object-src 'none'; base-uri 'none';">
+  <title>HTML Curriculum Composer Offline Player</title>
+  <link rel="stylesheet" href="./hardware3d/hardware3d.css">
+  <link rel="stylesheet" href="./player/player.css">
+</head>
+<body>
+  <div class="player-shell">
+    <header class="player-toolbar">
+      <div class="toolbar-brand">
+        <span class="brand-badge">OFFLINE</span>
+        <h1 id="project-title" class="project-title">Training Simulation</h1>
+      </div>
+
+      <div class="mode-tablist" role="tablist" aria-label="Playback Mode">
+        <button
+          id="mode-guided"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          data-mode="guided"
+          class="mode-tab"
+        >
+          Guided
+        </button>
+        <button
+          id="mode-explore"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          data-mode="explore"
+          class="mode-tab"
+        >
+          Explore
+        </button>
+        <button
+          id="mode-assessment"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          data-mode="assessment"
+          class="mode-tab"
+        >
+          Assessment
+        </button>
+      </div>
+
+      <div class="toolbar-controls">
+        <button id="btn-back" type="button" class="toolbar-btn" disabled>Back</button>
+        <button id="btn-forward" type="button" class="toolbar-btn" disabled>Forward</button>
+        <button
+          id="btn-scale-mode"
+          type="button"
+          class="toolbar-btn"
+          aria-pressed="true"
+          title="Toggle Fit to Screen or 100% Actual Size"
+        >
+          Fit
+        </button>
+
+        <div id="guided-controls" class="mode-controls">
+          <progress id="guided-progress" class="guided-progress" value="0" max="1"></progress>
+          <span id="guided-step-counter" class="counter-pill">Step 0 / 0</span>
+          <button id="btn-prev-step" type="button" class="toolbar-btn" disabled>Prev Step</button>
+          <button id="btn-next-step" type="button" class="toolbar-btn" disabled>Next Step</button>
+          <button id="btn-restart-guided" type="button" class="toolbar-btn">Restart</button>
+        </div>
+
+        <div id="explore-controls" class="mode-controls" hidden>
+          <label for="page-select" class="sr-only">Jump to captured page</label>
+          <select id="page-select" class="page-select"></select>
+          <button id="btn-hotspots" type="button" class="toolbar-btn" aria-pressed="false">
+            Highlight Hotspots
+          </button>
+        </div>
+
+        <div id="assessment-controls" class="mode-controls" hidden>
+          <span id="assessment-counter" class="counter-pill">Task 0 / 0</span>
+          <span id="assessment-misclicks" class="counter-pill counter-warn">Misclicks: 0</span>
+          <span id="assessment-objective" class="assessment-objective"></span>
+          <button id="btn-restart-assessment" type="button" class="toolbar-btn">Reset Test</button>
+        </div>
+      </div>
+
+      <div id="player-status" class="player-status" role="status" aria-live="polite">
+        Loading manifest...
+      </div>
+    </header>
+
+    <main id="stage-container" class="stage-container">
+      <div id="web-stage-pane" class="stage-pane web-stage-pane">
+        <div id="stage-scaler" class="stage-scaler" data-scale-mode="fit" data-stage-scale="1">
+          <iframe
+            id="stage-frame"
+            class="stage-frame"
+            title="Captured interface stage"
+            sandbox="allow-same-origin"
+          ></iframe>
+          <div id="hotspot-layer" class="hotspot-layer" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div id="hardware3d-stage-pane" class="stage-pane hardware3d-stage-pane" hidden>
+        <div class="hw3d-pane-bar">
+          <span id="hw3d-pane-title" class="hw3d-pane-title">3D Hardware Inspector</span>
+          <div class="hw3d-pane-actions">
+            <button
+              id="btn-toggle-split"
+              type="button"
+              class="toolbar-btn"
+              aria-pressed="false"
+              hidden
+            >
+              Split View
+            </button>
+            <button
+              id="btn-return-web"
+              type="button"
+              class="toolbar-btn btn-accent"
+              hidden
+            >
+              Return to Web Page
+            </button>
+          </div>
+        </div>
+        <div id="hardware3d-mount" class="hardware3d-mount"></div>
+      </div>
+
+      <div id="guided-spotlight" class="guided-spotlight" hidden aria-hidden="true"></div>
+
+      <section
+        id="guided-callout"
+        class="guided-callout"
+        role="region"
+        aria-labelledby="callout-title"
+        hidden
+      >
+        <div class="callout-header">
+          <span id="callout-step-badge" class="callout-badge">Step 1</span>
+          <span id="callout-action-badge" class="callout-action">CLICK</span>
+        </div>
+        <h2 id="callout-title" class="callout-title">Step Title</h2>
+        <p id="callout-instruction" class="callout-instruction"></p>
+        <p id="callout-input-hint" class="callout-hint" hidden></p>
+        <div class="callout-actions">
+          <button id="callout-prev" type="button" class="toolbar-btn">Back</button>
+          <button id="callout-next" type="button" class="toolbar-btn btn-accent">Next</button>
+        </div>
+      </section>
+
+      <div id="assessment-feedback" class="assessment-feedback" role="status" aria-live="polite" hidden></div>
+    </main>
+  </div>
+
+  <dialog id="assessment-summary-dialog" aria-labelledby="summary-title">
+    <div class="summary-card">
+      <h2 id="summary-title" class="summary-title">Assessment Complete</h2>
+      <p id="summary-score" class="summary-score">100%</p>
+      <div class="summary-stats">
+        <div>
+          <span class="stat-label">Tasks Passed</span>
+          <strong id="summary-completed" class="stat-value">0 / 0</strong>
+        </div>
+        <div>
+          <span class="stat-label">Misclicks</span>
+          <strong id="summary-misclicks" class="stat-value">0</strong>
+        </div>
+        <div>
+          <span class="stat-label">Input Errors</span>
+          <strong id="summary-input-errors" class="stat-value">0</strong>
+        </div>
+      </div>
+      <ol id="summary-breakdown" class="summary-breakdown"></ol>
+      <form method="dialog" class="summary-actions">
+        <button type="submit" id="btn-retry-assessment" value="retry" class="toolbar-btn btn-accent">
+          Retry Assessment
+        </button>
+        <button type="submit" id="btn-close-summary" value="close" class="toolbar-btn" autofocus>
+          Close
+        </button>
+      </form>
+    </div>
+  </dialog>
+
+  <script src="./bundle-data.js"></script>
+  <script src="./player/scorm-bridge.js"></script>
+  <script src="./hardware3d/hardware3d.bundle.js"></script>
+  <script src="./player/player.js"></script>
+</body>
+</html>

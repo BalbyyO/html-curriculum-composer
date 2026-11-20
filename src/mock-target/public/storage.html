@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HyperCore Admin - Storage Settings</title>
+  <link rel="icon" type="image/svg+xml" href="/images/appliance-logo.svg">
+  <link rel="stylesheet" href="/styles/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="/images/appliance-logo.svg" alt="HyperCore logo" width="36" height="36">
+        <div>
+          <p class="brand-title">HyperCore Manager</p>
+          <p class="brand-sub">v8.2 Appliance</p>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Primary">
+        <a id="nav-dashboard" class="nav-link" href="/index.html">Dashboard</a>
+        <a id="nav-networking" class="nav-link" href="/networking.html">Networking Settings</a>
+        <a id="nav-storage" class="nav-link" href="/storage.html" aria-current="page">Storage Settings</a>
+      </nav>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div>
+          <h1 class="page-title">Storage Settings</h1>
+          <p class="page-subtitle">VMFS datastores, NVMe pools, and multipath configuration</p>
+        </div>
+        <status-badge status="healthy">PERC H730 Mini &middot; Optimal</status-badge>
+      </header>
+
+      <div tabindex="0" role="region" aria-labelledby="datastores-caption" class="table-wrapper">
+        <table>
+          <caption id="datastores-caption">Configured Datastores</caption>
+          <thead>
+            <tr>
+              <th>Datastore</th>
+              <th>Protocol</th>
+              <th>Capacity</th>
+              <th>Free Space</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>datastore-nvme-01</th>
+              <td>NVMe / VMFS-6</td>
+              <td>3.84 TB</td>
+              <td>2.12 TB</td>
+              <td>Mounted</td>
+            </tr>
+            <tr>
+              <th>datastore-iscsi-san</th>
+              <td>iSCSI / VMFS-6</td>
+              <td>12.00 TB</td>
+              <td>7.45 TB</td>
+              <td>Mounted</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="actions-row">
+        <button type="button" id="back-to-dashboard-btn" class="btn">Back to Dashboard</button>
+        <button type="button" id="go-to-networking-btn" class="btn btn-primary">Go to Networking</button>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/admin-app.js"></script>
+</body>
+</html>

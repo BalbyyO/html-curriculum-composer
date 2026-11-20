@@ -1,0 +1,22 @@
+appId: com.htmlcurriculumcomposer.app
+productName: HTML Curriculum Composer
+asar: true
+asarUnpack:
+  - "node_modules/playwright-core/**"
+directories:
+  buildResources: build
+  output: release
+files:
+  - "dist/**/*"
+  - "package.json"
+win:
+  target:
+    - msi
+  icon: build/icon.ico
+  signAndEditExecutable: false
+msi:
+  upgradeCode: "7E9B4C2A-8F31-4D6E-A51C-90D2B84F6E31"
+  oneClick: false
+  perMachine: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true

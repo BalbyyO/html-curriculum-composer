@@ -1,0 +1,192 @@
+.hw3d-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at 50% 35%, #1e293b 0%, #020617 85%);
+  color: #f8fafc;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.hw3d-hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: rgba(15, 23, 42, 0.92);
+  border-bottom: 1px solid #334155;
+  z-index: 5;
+}
+
+.hw3d-hud-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.hw3d-btn {
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.32rem 0.65rem;
+  border-radius: 0.4rem;
+  border: 1px solid #475569;
+  background-color: #1e293b;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.hw3d-btn:hover {
+  background-color: #334155;
+}
+
+.hw3d-btn[aria-pressed="true"] {
+  background-color: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #7dd3fc;
+}
+
+.hw3d-canvas-host {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+}
+
+.hw3d-canvas-host canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hw3d-callout {
+  position: absolute;
+  top: 3.4rem;
+  right: 0.75rem;
+  width: min(300px, calc(100% - 1.5rem));
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.7rem;
+  border: 1px solid #38bdf8;
+  background-color: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.hw3d-callout[hidden] {
+  display: none;
+}
+
+.hw3d-callout-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.hw3d-callout-meta {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #38bdf8;
+}
+
+.hw3d-callout-close {
+  font: inherit;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.3rem;
+  border: 1px solid #475569;
+  background-color: #1e293b;
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+.hw3d-callout-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.hw3d-callout-specs {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.72rem;
+  color: #fde68a;
+}
+
+.hw3d-callout-desc {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+
+.hw3d-callout-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  padding-top: 0.25rem;
+}
+
+.hw3d-fault-badge {
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.35rem;
+  border: 1px solid #f59e0b;
+  background-color: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.hw3d-fault-badge[hidden] {
+  display: none;
+}
+
+.hw3d-cable-action-bar {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.55rem;
+  border: 1px solid #38bdf8;
+  background-color: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+  z-index: 14;
+}
+
+.hw3d-cable-action-bar[hidden] {
+  display: none;
+}
+
+.hw3d-cable-action-port {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #7dd3fc;
+}
+
+.hw3d-btn-primary {
+  background-color: #0284c7;
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.hw3d-btn-primary:hover {
+  background-color: #0369a1;
+}
