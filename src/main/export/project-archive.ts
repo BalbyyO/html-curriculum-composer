@@ -6,6 +6,8 @@ import type { ExportResult, ProjectRecord, TrainingManifest } from '../../shared
 import { ProjectStore, sanitizeProjectSlug } from '../projects/project-store';
 
 export const HCCPROJ_FORMAT_VERSION = '1.0.0';
+export const MAX_ARCHIVE_ENTRIES = 2000;
+export const MAX_ARCHIVE_UNCOMPRESSED_BYTES = 250 * 1024 * 1024;
 
 interface ArchiveFileItem {
   relPath: string;
@@ -167,8 +169,24 @@ export async function importProjectArchive(
   const archiveBytes = await fs.readFile(resolvedArchive);
   const zip = await JSZip.loadAsync(archiveBytes);
 
-  for (const [entryName, entry] of Object.entries(zip.files)) {
+  const archiveEntries = Object.entries(zip.files);
+  if (archiveEntries.length > MAX_ARCHIVE_ENTRIES) {
+    throw new Error(
+      `Invalid .hccproj archive: entry count (${archiveEntries.length}) exceeds limit (${MAX_ARCHIVE_ENTRIES}).`
+    );
+  }
+
+  for (const [entryName, entry] of archiveEntries) {
     assertSafeArchivePath(entryName);
+    const rawPerm = (entry as { unixPermissions?: number | string | null }).unixPermissions;
+    const unixMode = typeof rawPerm === 'string' ? parseInt(rawPerm, 8) : rawPerm;
+    if (
+      typeof unixMode === 'number' &&
+      Number.isFinite(unixMode) &&
+      (unixMode & 0o170000) === 0o120000
+    ) {
+      throw new Error(`Symlink entries are not permitted in .hccproj archive: "${entryName}"`);
+    }
     if (entry.dir) continue;
   }
 
@@ -214,8 +232,9 @@ export async function importProjectArchive(
   await fs.mkdir(path.join(targetDir, 'pages'), { recursive: true });
   await fs.mkdir(path.join(targetDir, 'assets'), { recursive: true });
 
+  let totalExtractedBytes = 0;
   try {
-    for (const [rawName, zipObj] of Object.entries(zip.files)) {
+    for (const [rawName, zipObj] of archiveEntries) {
       if (zipObj.dir) continue;
       const safeRel = assertSafeArchivePath(rawName);
       const isAllowedPayload =
@@ -230,6 +249,12 @@ export async function importProjectArchive(
       }
       await fs.mkdir(path.dirname(destPath), { recursive: true });
       const content = await zipObj.async('nodebuffer');
+      totalExtractedBytes += content.byteLength;
+      if (totalExtractedBytes > MAX_ARCHIVE_UNCOMPRESSED_BYTES) {
+        throw new Error(
+          `Archive uncompressed payload exceeds permitted limit (${MAX_ARCHIVE_UNCOMPRESSED_BYTES} bytes).`
+        );
+      }
       await fs.writeFile(destPath, content);
     }
 

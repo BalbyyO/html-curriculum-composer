@@ -1,6 +1,7 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, session, shell } from 'electron';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { startMockAdminServer, type MockAdminServerHandle } from '../mock-target/server';
 import {
   IPC_CHANNELS,
@@ -85,16 +86,31 @@ function broadcastCaptureUpdate(summary: CaptureSessionSummary): void {
 }
 
 async function renderHtmlFileToPdfWithElectron(htmlFilePath: string): Promise<Buffer> {
+  const resolvedHtmlPath = path.resolve(htmlFilePath);
+  const expectedUrl = pathToFileURL(resolvedHtmlPath).href;
+  const sopSession = session.fromPartition('sop-pdf');
+  sopSession.setPermissionRequestHandler((_wc, _permission, callback) => callback(false));
+  sopSession.setPermissionCheckHandler(() => false);
+
   const pdfWindow = new BrowserWindow({
     show: false,
     width: 960,
     height: 1200,
     backgroundColor: '#ffffff',
     webPreferences: {
+      session: sopSession,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      javascript: false
+      javascript: false,
+      webviewTag: false,
+      allowRunningInsecureContent: false
+    }
+  });
+
+  pdfWindow.webContents.on('will-navigate', (event, navUrl) => {
+    if (navUrl !== expectedUrl) {
+      event.preventDefault();
     }
   });
 
@@ -104,7 +120,7 @@ async function renderHtmlFileToPdfWithElectron(htmlFilePath: string): Promise<Bu
       pdfWindow.webContents.once('did-fail-load', (_e, code, desc) => {
         reject(new Error(`Failed to load SOP document for PDF rendering (${code}: ${desc})`));
       });
-      void pdfWindow.loadFile(htmlFilePath).catch(reject);
+      void pdfWindow.loadFile(resolvedHtmlPath).catch(reject);
     });
     await new Promise((r) => setTimeout(r, 200));
     return await pdfWindow.webContents.printToPDF({
@@ -126,16 +142,31 @@ function createWindow(): void {
     minWidth: 1024,
     minHeight: 720,
     title: 'HTML Curriculum Composer',
-    backgroundColor: '#020617',
+    backgroundColor: '#F2F0EF',
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
+      sandbox: true,
+      webviewTag: false,
+      allowRunningInsecureContent: false
     }
   });
 
   const devServerUrl = process.env.VITE_DEV_SERVER_URL;
+  const allowedDevOrigin = devServerUrl ? new URL(devServerUrl).origin : null;
+  const rendererRootUrl = pathToFileURL(path.join(__dirname, '../renderer')).href;
+  mainWindow.webContents.on('will-navigate', (event, navUrl) => {
+    try {
+      const parsed = new URL(navUrl);
+      if (allowedDevOrigin && parsed.origin === allowedDevOrigin) return;
+      if (parsed.protocol === 'file:' && navUrl.startsWith(rendererRootUrl)) return;
+    } catch {
+      // Block malformed URLs
+    }
+    event.preventDefault();
+  });
+
   if (devServerUrl) {
     void mainWindow.loadURL(devServerUrl);
   } else {
@@ -184,7 +215,16 @@ function registerIpcHandlers(): void {
     async (_event, req: StartCaptureRequest): Promise<CaptureSessionSummary> => {
       const store = await ensureStoreReady();
       const targetUrl = req?.targetUrl?.trim();
-      if (!targetUrl || (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://'))) {
+      if (!targetUrl || targetUrl.includes('\0')) {
+        throw new Error('Target URL must begin with http:// or https://');
+      }
+      let parsedTarget: URL;
+      try {
+        parsedTarget = new URL(targetUrl);
+      } catch {
+        throw new Error('Target URL must be a valid http:// or https:// URL');
+      }
+      if (parsedTarget.protocol !== 'http:' && parsedTarget.protocol !== 'https:') {
         throw new Error('Target URL must begin with http:// or https://');
       }
 
@@ -289,11 +329,12 @@ function registerIpcHandlers(): void {
   ipcMain.handle(
     IPC_CHANNELS.PREVIEW_OPEN,
     async (_event, bundleDir: string): Promise<PreviewServerInfo> => {
-      if (!bundleDir) {
-        throw new Error('Bundle directory is required.');
+      if (!bundleDir || bundleDir.includes('\0')) {
+        throw new Error('Valid bundle directory is required.');
       }
       const resolved = path.resolve(bundleDir);
       await fs.access(path.join(resolved, 'index.html'));
+      await fs.access(path.join(resolved, 'manifest.json'));
 
       if (previewServer) {
         await previewServer.close();
@@ -312,13 +353,16 @@ function registerIpcHandlers(): void {
   );
 
   ipcMain.handle(IPC_CHANNELS.BUNDLE_REVEAL, async (_event, targetPath: string): Promise<boolean> => {
-    if (!targetPath) return false;
+    if (!targetPath || targetPath.includes('\0')) return false;
     const resolved = path.resolve(targetPath);
     await fs.access(resolved);
     const stat = await fs.stat(resolved);
     if (stat.isFile()) {
       shell.showItemInFolder(resolved);
       return true;
+    }
+    if (!stat.isDirectory()) {
+      return false;
     }
     const err = await shell.openPath(resolved);
     return err === '';
@@ -570,7 +614,16 @@ async function cleanupResources(): Promise<void> {
   }
 }
 
+app.on('web-contents-created', (_event, contents) => {
+  contents.on('will-attach-webview', (event) => {
+    event.preventDefault();
+  });
+  contents.setWindowOpenHandler(() => ({ action: 'deny' }));
+});
+
 app.whenReady().then(() => {
+  session.defaultSession.setPermissionRequestHandler((_wc, _permission, callback) => callback(false));
+  session.defaultSession.setPermissionCheckHandler(() => false);
   void ensureStoreReady();
   registerIpcHandlers();
   createWindow();

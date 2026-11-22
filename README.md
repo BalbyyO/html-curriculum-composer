@@ -1,6 +1,6 @@
 # HTML Curriculum Composer
 
-![Version](https://img.shields.io/badge/version-0.1.1--beta-blue)
+![Version](https://img.shields.io/badge/version-0.1.2--beta-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-Windows%20x64%20(.msi)-lightgrey)
 
@@ -44,7 +44,7 @@
 3. **Enterprise Windows Deployment:** Signed/standard WiX MSI packaging with a static `upgradeCode` for clean enterprise upgrades and silent installation:
 
 ```powershell
-msiexec /i "HTML Curriculum Composer 0.1.1-beta.msi" /qn
+msiexec /i "HTML Curriculum Composer 0.1.2-beta.msi" /qn
 ```
 
 ---
@@ -81,5 +81,5 @@ npm run dist:msi
 ## Contributing & Security
 
 - Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for codebase structure and development guidelines.
-- Security model and vulnerability disclosure instructions are documented in [SECURITY.md](SECURITY.md).
+- Security model and vulnerability disclosure instructions are documented in [SECURITY.md](SECURITY.md) and the latest dependency compliance report is in [SECURITY_REPORT.md](SECURITY_REPORT.md).
 - Released under the [MIT License](LICENSE).

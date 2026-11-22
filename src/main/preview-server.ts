@@ -391,12 +391,21 @@ export async function startBundlePreviewServer(
         return;
       }
 
-      const reqUrl = new URL(req.url ?? '/', `http://${host}`);
+      const rawRequestUrl = req.url ?? '/';
+      if (rawRequestUrl.includes('\0') || rawRequestUrl.toLowerCase().includes('%00')) {
+        res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('Bad Request');
+        return;
+      }
+
+      const reqUrl = new URL(rawRequestUrl, `http://${host}`);
 
       if (enableComposerStage && reqUrl.pathname === '/__composer-stage.html') {
         res.writeHead(200, {
           'Content-Type': 'text/html; charset=utf-8',
           'X-Content-Type-Options': 'nosniff',
+          'Referrer-Policy': 'no-referrer',
+          'Cross-Origin-Resource-Policy': 'same-origin',
           'Cache-Control': 'no-store'
         });
         res.end(req.method === 'HEAD' ? undefined : COMPOSER_STAGE_HTML);
@@ -407,6 +416,8 @@ export async function startBundlePreviewServer(
         res.writeHead(200, {
           'Content-Type': 'application/javascript; charset=utf-8',
           'X-Content-Type-Options': 'nosniff',
+          'Referrer-Policy': 'no-referrer',
+          'Cross-Origin-Resource-Policy': 'same-origin',
           'Cache-Control': 'no-store'
         });
         res.end(req.method === 'HEAD' ? undefined : COMPOSER_STAGE_JS);
@@ -428,6 +439,8 @@ export async function startBundlePreviewServer(
       res.writeHead(200, {
         'Content-Type': MIME_TYPES[ext] ?? 'application/octet-stream',
         'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'no-referrer',
+        'Cross-Origin-Resource-Policy': 'same-origin',
         'Cache-Control': 'no-store'
       });
 

@@ -4,7 +4,10 @@
 
 | Version | Supported |
 | ------- | --------- |
-| `0.1.x-beta` | Yes |
+| `0.1.2-beta` | Yes |
+| `0.1.0-beta` – `0.1.1-beta` | Upgrade to `0.1.2-beta` (Electron 35 EOL / CISA KEV patches) |
+
+See [SECURITY_REPORT.md](SECURITY_REPORT.md) for the live **CISA KEV (`2026.11.20`)**, **CVE.org**, and **`npm audit`** compliance breakdown for `v0.1.2-beta`.
 
 ## Security Architecture
 

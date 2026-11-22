@@ -89,12 +89,12 @@ async function sanitizeTree(
   root.find('script, noscript, object, embed, applet, base').remove();
   root.find('meta[http-equiv]').each((_, node) => {
     const equiv = ($(node).attr('http-equiv') ?? '').trim().toLowerCase();
-    if (equiv === 'refresh' || equiv === 'content-security-policy') {
+    if (equiv === 'refresh' || equiv === 'content-security-policy' || equiv === 'set-cookie') {
       $(node).remove();
     }
   });
 
-  // 2. Strip all on* event handler attributes, ping, and dangerous javascript:/vbscript: URIs
+  // 2. Strip all on* event handler attributes, ping, and dangerous javascript:/vbscript:/data:html URIs
   const allElements = root.find('*').toArray();
   for (const el of allElements) {
     const attribs = (el as { attribs?: Record<string, string> }).attribs;
@@ -115,7 +115,13 @@ async function sanitizeTree(
         lower === 'xlink:href'
       ) {
         const val = (attribs[attrName] ?? '').trim();
-        if (/^(?:javascript|vbscript):/i.test(val)) {
+        const normalizedUri = val.replace(/[\u0000-\u001f\s]+/g, '');
+        const isNavAttr = lower !== 'src';
+        const isDangerousUri =
+          /^(?:javascript|vbscript):/i.test(normalizedUri) ||
+          /^data:text\/html/i.test(normalizedUri) ||
+          (isNavAttr && /^data:image\/svg\+xml/i.test(normalizedUri));
+        if (isDangerousUri) {
           $el.attr(attrName, lower === 'href' ? '#' : '');
         }
       }

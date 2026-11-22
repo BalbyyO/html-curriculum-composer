@@ -360,7 +360,7 @@ export function App() {
               HTML Curriculum Composer
             </h1>
             <span className="hcc-badge hcc-badge-secondary px-1.5 py-0.5 text-[10px] font-mono uppercase">
-              v0.1.1-beta
+              v0.1.2-beta
             </span>
           </div>
           <p className="text-[11px] font-medium text-[var(--hcc-ink-muted)]">
