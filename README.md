@@ -78,8 +78,21 @@ npm run dist:msi
 
 ---
 
+## Code Signing Policy
+
+Free code signing provided by [SignPath.io](https://signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+
+- **Scope & Build Provenance:** Signed Windows installers (`HTML Curriculum Composer <version>.msi`) and executables (`HTML Curriculum Composer.exe`) are built strictly from public commits in this repository on GitHub-hosted `windows-latest` runners via [.github/workflows/build-msi.yml](.github/workflows/build-msi.yml).
+- **Team Roles (MFA enforced):** Committers, Reviewers, and Signing Approvers: `Matheus Oliveira` (`@BalbyyO`).
+- **Privacy Policy:** This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it.
+
+See [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md) for the complete policy.
+
+---
+
 ## Contributing & Security
 
 - Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for codebase structure and development guidelines.
 - Security model and vulnerability disclosure instructions are documented in [SECURITY.md](SECURITY.md) and the latest dependency compliance report is in [SECURITY_REPORT.md](SECURITY_REPORT.md).
+- Automated Windows MSI signing policy and team roles are documented in [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md).
 - Released under the [MIT License](LICENSE).
